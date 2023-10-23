@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "dgSpecHash": "JrH6nCZLB/egMkS+x4RjF/1Z0xHRmCcIuKDDEx8mNpR6OxqpPv7e4uSgAE/77i0elGCaAnJcPzhMLvoSboDnpQ==",
+  "success": true,
+  "projectFilePath": "C:\\WIP\\Werewolf Server\\Werewolf Server\\Werewolf Server.csproj",
+  "expectedPackageFiles": [],
+  "logs": [
+    {
+      "code": "NU1803",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "You are running the 'restore' operation with an 'HTTP' source, 'http://teamcity.monogame.net/guestAuth/app/nuget/feed/_Root/default/v3/index.json'. Non-HTTPS access will be removed in a future version. Consider migrating to an 'HTTPS' source."
+    }
+  ]
+}

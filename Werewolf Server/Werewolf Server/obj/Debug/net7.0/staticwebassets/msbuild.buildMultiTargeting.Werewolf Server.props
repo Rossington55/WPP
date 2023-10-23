@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\Werewolf Server.props" />
+</Project>
