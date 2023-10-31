@@ -15,31 +15,31 @@ namespace Werewolf_Server
             _connections = new List<Connection>();
         }
 
-        public void RecieveMessage(WebSocket ws, string[] message)
+        public void RecieveMessage(WebSocket ws, Message message)
         {
-            List<NamedMessage> result;
+            List<Message> result;
 
-            switch (message[0])
+            switch (message.commandServer)
             {
                 //Init
-                case "Host":
+                case CommandServer.Host:
                     _host = new Connection("host", ws);
-                    _host.Broadcast("HostFound;");
-                    _game = new Game();
+                    _host.Broadcast(new Message(CommandClient.HostFound));
                     break;
-                case "Join":
-                    AddConnection(ws, message[1]);
+                case CommandServer.Join:
+                    AddConnection(ws, message.player);
                     break;
-                case "Leave":
-                    RemoveConnection(message[1]);
+                case CommandServer.Leave:
+                    RemoveConnection(message.player);
                     break;
 
                 //Lobby or refresh
-                case "RemindState":
-                    RemindState(message[1]);
+                case CommandServer.RemindState:
+                    RemindState(message.player);
                     break;
-                case "Start":
-                    result = _game.Start(_connections);
+                case CommandServer.Start:
+                    _game = new Game();
+                    result = _game.Start(_connections, message.subCommand);
                     ResolveGameResult(result);
                     break;
 
@@ -47,7 +47,7 @@ namespace Werewolf_Server
                 default:
                     if (_game != null)
                     {
-                        result = _game.Update(message[1]);
+                        result = _game.Update(message);
                         ResolveGameResult(result);
                     }
                     break;
@@ -71,7 +71,7 @@ namespace Werewolf_Server
         }
 
 
-        private void BroadcastAll(string message)
+        private void BroadcastAll(Message message)
         {
             if (_host != null)
             {
@@ -80,7 +80,7 @@ namespace Werewolf_Server
             BroadcastUsers(message);
         }
 
-        private void BroadcastUsers(string message)
+        private void BroadcastUsers(Message message)
         {
             foreach (Connection conn in _connections)
             {
@@ -108,60 +108,61 @@ namespace Werewolf_Server
             }
 
             //Refresh player list
-            BroadcastAll("Players;" + GetPlayerList());
+            BroadcastAll(new Message(
+                CommandClient.PlayerList,
+                GetPlayerList()
+                ));
 
             //Confirm success with latest connection
-            conn.Broadcast("Joined;");
+            conn.Broadcast(new Message(CommandClient.Joined));
 
         }
 
         private void RemoveConnection(string name)
         {
             Connection removeMe = _connections.Find(player => player.connectionName == name);
-            removeMe.Broadcast("Left;");
+            removeMe.Broadcast(new Message(
+               CommandClient.Left
+                ));
             _connections.Remove(removeMe);
 
             //Update player list to all
-            BroadcastAll("Players;" + GetPlayerList());
+            BroadcastAll(new Message(
+               CommandClient.PlayerList,
+               GetPlayerList()
+                ));
         }
 
-        public string GetPlayerList()
+        public List<string> GetPlayerList()
         {
-
-            string output = "";
+            List<string> playerList = new List<string>();
             foreach (Connection conn in _connections)
             {
-                output += conn.connectionName;
-                output += ",";
-            }
-            if (output.Contains(","))
-            {
-                //Remove trailing comma
-                output = output.Remove(output.Length - 1);
+                playerList.Add(conn.connectionName);
             }
 
-            return output;
+            return playerList;
         }
 
-        private void ResolveGameResult(List<NamedMessage> result)
+        private void ResolveGameResult(List<Message> result)
         {
             //Broadcast each player message to the respective connection
-            foreach (NamedMessage namedMessage in result)
+            foreach (Message message in result)
             {
                 Connection? conn;
-                if (namedMessage.connectionName == "host")
+                if (message.player == "host")
                 {
                     conn = _host;
                 }
                 else
                 {
                     //Find the respective connection
-                    conn = _connections.Find(conn => conn.connectionName == namedMessage.connectionName);
+                    conn = _connections.Find(conn => conn.connectionName == message.player);
                 }
 
                 if (conn != null)
                 {
-                    conn.Broadcast(namedMessage.message);
+                    conn.Broadcast(message);
                 }
 
             }
@@ -177,12 +178,19 @@ namespace Werewolf_Server
 
             if (_game != null)//If game is started
             {
-                //Broadcast role
-                user.Broadcast(_game.GetReminderData(user.player));
+                List<Message> result = _game.GetReminderData(user.player);
+                foreach (Message message in result)
+                {
+                    user.Broadcast(message);
+                }
             }
             else
             {
-                user.Broadcast("Players;" + GetPlayerList());
+                //Just broadcast the player list
+                user.Broadcast(new Message(
+                CommandClient.PlayerList,
+                GetPlayerList()
+                ));
             }
         }
 

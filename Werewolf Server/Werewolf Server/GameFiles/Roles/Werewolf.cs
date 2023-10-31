@@ -13,10 +13,7 @@
             canMultiClick = false;
         }
 
-        public override string NightTask(List<Player> selectedPlayers) {
-            foreach (Player p in selectedPlayers) {
-                p.votes++;
-            }
+        public override string NightTask(Message message, List<Player> alivePlayers) {
             return "";
         }
     }

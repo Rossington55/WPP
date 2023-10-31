@@ -1,5 +1,6 @@
 ﻿using System.Net.WebSockets;
 using System.Text;
+using System.Text.Json;
 
 namespace Werewolf_Server
 {
@@ -17,16 +18,28 @@ namespace Werewolf_Server
         }
 
 
-        public async void Broadcast(string message)
+        public async void Broadcast(Message message)
         {
-            Console.WriteLine($"Sending {message}");
-            var bytes = Encoding.UTF8.GetBytes(message);
+            Log(message);
+
+            //Convert to json string
+            string jsonString = JsonSerializer.Serialize(message);
+            var bytes = Encoding.UTF8.GetBytes(jsonString);
+
+            //Only send if socket is still open
             if (socket.State == WebSocketState.Open)
             {
+                //socket black magic witchcraftery
                 var arraySegment = new ArraySegment<byte>(bytes, 0, bytes.Length);
                 await socket.SendAsync(arraySegment,
                     WebSocketMessageType.Text, true, CancellationToken.None);
             }
+        }
+
+        private void Log(Message message)
+        {
+            string output = $"Sending: {message.commandClient} to {message.player}";
+            Console.WriteLine(output);
         }
     }
 }

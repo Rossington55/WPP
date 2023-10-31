@@ -15,6 +15,6 @@
         }
 
 
-        public override string NightTask(List<Player> selectedPlayers) { return ""; }
+        public override string NightTask(Message message, List<Player> players) { return ""; }
     }
 }

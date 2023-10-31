@@ -1,0 +1,17 @@
+[
+  {
+    "name": "VillagerOnly",
+    "minPlayerCount": 0,
+    "roleNames": []
+  },
+  {
+    "name": "Mafia",
+    "minPlayerCount": 3,
+    "roleNames": [ "Werewolf" ]
+  },
+  {
+    "name": "DoubleTrouble",
+    "minPlayerCount": 3,
+    "roleNames": [ "Werewolf","Werewolf" ]
+  }
+]

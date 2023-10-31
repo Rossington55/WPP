@@ -8,6 +8,7 @@ namespace Werewolf_Server
         public int votes;
         public bool ready;
         public string name;
+        public int werewolvesAttacking;//How many werewolves are currently attacking me
 
         public Player(string name, Role role)
         {
@@ -16,15 +17,20 @@ namespace Werewolf_Server
             this.votes = 0;
             this.ready = false;
             this.name = name;
+            werewolvesAttacking = 0;
         }
-        public string RoleString { get
+        public List<string> RoleDetails
+        {
+            get
             {
-                return $"Role;{role.name}," +
-                    $"{role.description}," +
-                    $"{role.team}," +
-                    $"{role.nightDescription}," +
-                    $"{role.hasNightTask}," +
-                    $"{role.canMultiClick}";
+                return new List<string>() {
+                    role.name,                  //0
+                    role.description,           //1
+                    role.team.ToString(),       //2
+                    role.nightDescription,      //3
+                role.hasNightTask.ToString(),   //4
+                role.canMultiClick.ToString()   //5
+                };
             }
         }
     }

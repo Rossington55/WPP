@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 using Werewolf_Server;
@@ -15,6 +16,20 @@ namespace WerewolfServerTest.Tests
         public GameTests()
         {
             game = new Game();
+        }
+
+        private List<Connection> CreatePlayers(int playerCount)
+        {
+            List<Connection> connections = new List<Connection>();
+            for (int i = 0; i < playerCount; i++)
+            {
+                connections.Add(new Connection(
+                    i.ToString(),
+                    null
+                    ));
+            }
+
+            return connections;
         }
 
         [Theory]
@@ -31,10 +46,111 @@ namespace WerewolfServerTest.Tests
                 connections.Add(new Connection(i.ToString(), null));
             }
 
-            var result =  game.Start(connections);
+            var result = game.Start(connections,"");
 
-            result.Should().BeOfType<List<NamedMessage>>();
+            result.Should().BeOfType<List<Message>>();
             result.Count.Should().Be(userCount);
         }
+
+        [Theory]
+        [InlineData(CommandServer.Join)]
+        public void Game_Update_Default(CommandServer command)
+        {
+            Message message = new Message("", command, "");
+
+            var result = game.Update(message);
+
+            result.Should().BeOfType<List<Message>>();
+            result.Count().Should().Be(0);
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(100)]
+        public void Game_Update_NightInit(int playerCount)
+        {
+            Message message = new Message(
+            "",
+            CommandServer.StartNight,
+            ""
+                );
+
+            List<Connection> players = CreatePlayers(playerCount);
+            game.Start(players,"");
+
+            var result = game.Update(message);
+
+            //Verify messages
+            result.Count.Should().Be(1 + (playerCount * 2));//Host + (Alive players and state)
+            result[0].data.Should().BeEquivalentTo(State.Night.ToString());//First message is state to host
+
+            if (result.Count > 1)
+            {
+                result[1].commandClient.Should().Be(CommandClient.PlayerList);
+                result[2].commandClient.Should().Be(CommandClient.State);
+            }
+
+            //Verify Game
+            game.state.Should().Be(State.Night);
+        }
+
+        [Theory]
+        [InlineData("1", true)]//Should succeed
+        [InlineData("1", false)]//Should succeed
+        [InlineData("I dont exist", true)]//Invalid player
+        [InlineData("I dont exist", false)]//Invalid player
+        [InlineData("", true)]//No player selected
+        [InlineData("", false)]//No player selected
+        public void Game_Update_WWClick(string selectedPlayer, bool isSelecting)
+        {
+            Message message = new Message(
+                "0",//From player 0
+                CommandServer.WerewolfSelectPlayer,
+                selectedPlayer
+                );
+            if (isSelecting)
+            {
+                message.subCommand = "select";
+            }
+            else
+            {
+                message.subCommand = "deselect";
+            }
+
+            //Init the game
+            int playerCount = 3;
+            List<Connection> players = CreatePlayers(playerCount);
+            game.Start(players, "");
+
+            var result = game.Update(message);
+
+            //There is a result for a valid player
+            if (selectedPlayer == "1")
+            {
+                result.Should().HaveCountGreaterThan(0);
+                if (result.Count == 0) { return; }
+                //Correct command
+                result[0].commandClient.Should().Be(CommandClient.WerewolfSelectedPlayerList);
+
+                //Correct data
+                result[0].data.Should().HaveCountGreaterThan(0);
+                if (result[0].data.Count == 0) { return; }
+
+                if (isSelecting)
+                {
+                    result[0].data.Should().Contain(item => item.Contains(";1"));
+                }
+                else
+                {
+                    result[0].data.Should().NotContain(item => item.Contains(";-1"));
+                    result[0].data.Should().NotContain(item => item.Contains(";-1"));
+                }
+
+            }
+        }
+
+
     }
 }

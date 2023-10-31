@@ -109,3 +109,4 @@ C:\WIP\Werewolf Server\WerewolfServerTest\bin\Debug\net7.0\appsettings.json
 C:\WIP\Werewolf Server\WerewolfServerTest\bin\Debug\net7.0\Werewolf Server.exe
 C:\WIP\Werewolf Server\WerewolfServerTest\bin\Debug\net7.0\Werewolf Server.dll
 C:\WIP\Werewolf Server\WerewolfServerTest\bin\Debug\net7.0\Werewolf Server.pdb
+C:\WIP\Werewolf Server\WerewolfServerTest\bin\Debug\net7.0\GameFiles\Modes\GameModes.json

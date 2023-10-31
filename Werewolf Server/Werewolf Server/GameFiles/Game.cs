@@ -1,5 +1,6 @@
 ﻿
 using Werewolf_Server.GameFiles;
+using Werewolf_Server.GameFiles.Modes;
 
 namespace Werewolf_Server
 {
@@ -7,13 +8,28 @@ namespace Werewolf_Server
     public class Game
     {
         public State state;
-        public List<Player> _players = new List<Player>();
+        private List<Player> _players = new List<Player>();
+        private List<Message> _messagesOut;
+        private GameModes gameModes;
 
         private List<Player> AlivePlayers
         {
             get
             {
                 return _players.Where(player => player.alive).ToList();
+            }
+        }
+
+        private List<string> AlivePlayersString
+        {
+            get
+            {
+                List<string> alivePlayersString = new List<string>();
+                foreach (Player player in AlivePlayers)
+                {
+                    alivePlayersString.Add(player.name);
+                }
+                return alivePlayersString;
             }
         }
 
@@ -29,14 +45,16 @@ namespace Werewolf_Server
         public Game()
         {
             state = State.Lobby;
+            gameModes = new GameModes();
         }
 
-        public List<NamedMessage> Start(List<Connection> users)
+        public List<Message> Start(List<Connection> users, string gameMode)
         {
-            List<NamedMessage> namedMessages = new List<NamedMessage>();
+            List<Message> namedMessages = new List<Message>();
+            gameModes.GetMode(users.Count, gameMode);
 
             state = State.Day;
-            List<Role> roles = GeneratreRoles(users.Count);
+            List<Role> roles = GenerateRoles(users.Count);
 
             //Add a player with each role
             for (int i = 0; i < roles.Count; i++)
@@ -46,45 +64,46 @@ namespace Werewolf_Server
                 users[i].player = newPlayer;
 
                 //Broadcast new role
-                namedMessages.Add(new NamedMessage(newPlayer.name, newPlayer.RoleString));
+                namedMessages.Add(new Message(
+                    newPlayer.name,
+                    CommandClient.Role,
+                    newPlayer.RoleDetails
+                    ));
             }
 
             return namedMessages;
         }
 
-        public List<NamedMessage> Update(string message)
+        public List<Message> Update(Message message)
         {
-            List<NamedMessage> output = new List<NamedMessage>();
-            return output;
+            _messagesOut = new List<Message>();
+            switch (message.commandServer)
+            {
+                case CommandServer.StartNight:
+                    NightInit();
+                    break;
+
+                case CommandServer.WerewolfSelectPlayer:
+                    WerewolfClick(message);
+                    break;
+
+                case CommandServer.NightSubmit:
+                    NightSubmit(message);
+                    break;
+            }
+            return _messagesOut;
         }
 
         //Returns all important information to the user
-        public string GetReminderData(Player player)
+        public List<Message> GetReminderData(Player player)
         {
-            return "";
+            return new List<Message>();
         }
 
-        public List<Role> GeneratreRoles(int playerCount)
+        public List<Role> GenerateRoles(int playerCount)
         {
-            List<Role> roles = new List<Role>();
-            switch (playerCount)
-            {
-                case 2://2W
-                    roles.Add(new Werewolf());
-                    roles.Add(new Werewolf());
-                    break;
-                case 3://2V, 1W
-                    roles.Add(new Villager());
-                    roles.Add(new Villager());
-                    roles.Add(new Werewolf());
-                    break;
-                default://No werewolves
-                    for (int i = 0; i < playerCount; i++)
-                    {
-                        roles.Add(new Villager());
-                    }
-                    break;
-            }
+            List<Role> roles = gameModes.currentMode.roles;
+            
 
             //Shuffle list
             Random random = new Random();
@@ -99,34 +118,32 @@ namespace Werewolf_Server
             return roles;
         }
 
-        public string GetPlayerList(List<Player>? players)
+        public Player GetPlayerByRole(string roleName)
         {
-            if (players == null)
-            {
-                players = _players;
-            }
-
-            string output = "";
-            foreach (Player player in players)
-            {
-                //output += player.conn.name;
-                output += ",";
-            }
-            if (output.Contains(","))
-            {
-                //Remove trailing comma
-                output = output.Remove(output.Length - 1);
-            }
-
-            return output;
+            return _players.Find(player => player.role.name == roleName);
         }
-
         public void NightInit()
         {
+            state = State.Night;
+            _messagesOut.Add(new Message(
+                "host",
+                CommandClient.State,
+                state.ToString()
+                ));
+
             //Notify of alive players
             foreach (Player player in AlivePlayers)
             {
-                //player.conn.Broadcast("Players;" + GetPlayerList(AlivePlayers));
+                _messagesOut.Add(new Message(
+                    player.name,
+                    CommandClient.PlayerList,
+                    AlivePlayersString
+                    ));
+                _messagesOut.Add(new Message(
+                    player.name,
+                    CommandClient.State,
+                    state.ToString()
+                    ));
 
                 player.votes = 0;
                 //Unready those with tasks
@@ -141,57 +158,55 @@ namespace Werewolf_Server
             }
         }
 
-        public void NightSubmit(string myName, string message)
+        public void NightSubmit(Message message)
         {
-            string[] selectedPlayerNames = message.Split(",");
-            //Get selectedPlayers by name
-            List<Player> selectedPlayers = new List<Player>();
-            foreach (string playerName in selectedPlayerNames)
-            {
-                foreach (Player player in _players)
-                {
-/*                    if (player.conn.name == playerName)
-                    {
-                        selectedPlayers.Add(player);
-                    }
-*/                }
+            Player? player = _players.Find(player => player.name == message.player);
+            if (player == null) { return; }
 
-            }
-            //Player me = _players.Find(player => player.conn.name == myName);
-/*            string info = me.role.NightTask(selectedPlayers);
+            string result = player.role.NightTask(message, AlivePlayers);
 
-
-            //Send back relevant info
-            if (info != "")
-            {
-                me.conn.Broadcast("NightInfo;" + info);
-            }
-            else
-            {
-                me.conn.Broadcast("NightInfo;Ready");
-            }
-            me.ready = true;
-*/
+            //Player successfully submitted
+            player.ready = true;
+            _messagesOut.Add(new Message(player.name, CommandClient.Submitted));
             CheckNightFinished();
-
         }
 
         //Notify every other werewolf this name is clicked
-        public void WerewolfClick(string myName, string clickedName, bool isClicked)
+        public void WerewolfClick(Message message)
         {
-            if (!isClicked)
+            //Find the selected player
+            Player? selectedPlayer = _players.Find(player => player.name == message.data[0]);
+            if (selectedPlayer == null) { return; }
+
+            //Select/Deselect
+            if (message.subCommand == "select")
             {
-                clickedName = "!" + clickedName;
+                selectedPlayer.werewolvesAttacking++;
+            }
+            else if (message.subCommand == "deselect")
+            {
+                if (selectedPlayer.werewolvesAttacking > 0)
+                {
+                    selectedPlayer.werewolvesAttacking--;
+                }
             }
 
+            //Get names of players with how many attacking
+            List<string> attackList = new List<string>();
+            foreach (Player player in AlivePlayers)
+            {
+                attackList.Add($"{player.name};{player.werewolvesAttacking}");
+            }
+
+            //Notify each werewolf of the new selection
             foreach (Player werewolf in Werewolves)
             {
-/*                if (werewolf.conn.name != myName)
-                {
-                    //WerewolfClick;!<name>
-                    werewolf.conn.Broadcast($"WerewolfClick;{clickedName};");
-                }
-*/            }
+                _messagesOut.Add(new Message(
+                    werewolf.name,
+                    CommandClient.WerewolfSelectedPlayerList,
+                    attackList
+                    ));
+            }
 
         }
 
@@ -201,48 +216,50 @@ namespace Werewolf_Server
             int readyCount = 0;
             foreach (Player player in AlivePlayers)
             {
+                //Players without a night task are ready by default
                 if (player.ready) { readyCount++; }
             }
 
             if (readyCount == AlivePlayers.Count)
             {
-                //Give at least 2 seconds to the last person getting info
-                Thread.Sleep(2000);
                 FinishNight();
             }
         }
 
         private void FinishNight()
         {
-/*            _host.Broadcast("EndNight;");
-*/
+            state = State.Day;
+            _messagesOut.Add(new Message(
+                "host",
+                CommandClient.State,
+                state.ToString()
+                ));
+
             //Sanity check, find the player most bitten by werewolves
             Player murderedPlayer = null;
             int mostVotes = 0;
             foreach (Player player in AlivePlayers)
             {
-                if (mostVotes < player.votes)
+                if (mostVotes < player.werewolvesAttacking)
                 {
-                    mostVotes = player.votes;
+                    mostVotes = player.werewolvesAttacking;
                     murderedPlayer = player;
                 }
+
+                //Notify all its day
+                _messagesOut.Add(new Message(
+                    player.name,
+                    CommandClient.State,
+                    state.ToString()
+                    ));
             }
 
-            //Send murdered info
-/*            if (murderedPlayer != null)
+            if (murderedPlayer != null)
             {
-                _host.Broadcast($"Murdered;{murderedPlayer.conn.name}");
-
                 murderedPlayer.alive = false;
-                murderedPlayer.conn.Broadcast("Dead");
+                _messagesOut.Add(new Message(murderedPlayer.name, CommandClient.Murdered));
             }
-
-            _host.Broadcast("State;Day");
-            foreach(Player player in _players)
-            {
-                player.conn.Broadcast("State;Day");
-            }
-*/        }
+        }
 
     }
 }

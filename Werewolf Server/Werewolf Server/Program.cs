@@ -4,6 +4,8 @@ using System.Net.WebSockets;
 using Werewolf_Server;
 using System.Diagnostics;
 using System.Reflection.Metadata.Ecma335;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls("http://localhost:8080/");
@@ -20,7 +22,7 @@ app.Map("/ws", async context =>
 
         //Let this user know they're connected
         Connection connection = new Connection("",ws);
-        connection.Broadcast("Connected");
+        connection.Broadcast(new Message(CommandClient.Connected));
 
         //Decode then...
         await RecieveMessage(ws,
@@ -29,7 +31,7 @@ app.Map("/ws", async context =>
                 //Normal message
                 if (result.MessageType == WebSocketMessageType.Text)
                 {
-                    string[] message = Encoding.UTF8.GetString(buffer, 0, result.Count).Split(";");
+                    Message message = JsonSerializer.Deserialize<Message>(Encoding.UTF8.GetString(buffer, 0, result.Count));
                     mrBob.RecieveMessage(ws, message);
                     LogMessage(message);
                 }
@@ -58,26 +60,8 @@ async Task RecieveMessage(WebSocket socket, Action<WebSocketReceiveResult, byte[
 }
 await app.RunAsync();
 
-void LogMessage(string[] message)
+void LogMessage(Message message)
 {
-    string output = "Recieved: ";
-    foreach (string msg in message)
-    {
-        output += msg;
-    }
+    string output = $"Recieved: {message.commandServer}, {message.player}";
     Console.WriteLine(output);
-}
-async Task BroadcastMany(string message, List<WebSocket> recievers)
-{
-    Console.WriteLine($"Sending {message}");
-    var bytes = Encoding.UTF8.GetBytes(message);
-    foreach (var socket in recievers)
-    {
-        if (socket.State == WebSocketState.Open)
-        {
-            var arraySegment = new ArraySegment<byte>(bytes, 0, bytes.Length);
-            await socket.SendAsync(arraySegment,
-                WebSocketMessageType.Text, true, CancellationToken.None);
-        }
-    }
 }
