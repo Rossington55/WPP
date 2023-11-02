@@ -50,10 +50,9 @@ namespace Werewolf_Server
 
         public List<Message> Start(List<Connection> users, string gameMode)
         {
-            List<Message> namedMessages = new List<Message>();
+            _messagesOut = new List<Message>();
             gameModes.GetMode(users.Count, gameMode);
 
-            state = State.Day;
             List<Role> roles = GenerateRoles(users.Count);
 
             //Add a player with each role
@@ -64,14 +63,15 @@ namespace Werewolf_Server
                 users[i].player = newPlayer;
 
                 //Broadcast new role
-                namedMessages.Add(new Message(
+                _messagesOut.Add(new Message(
                     newPlayer.name,
                     CommandClient.Role,
                     newPlayer.RoleDetails
                     ));
             }
 
-            return namedMessages;
+            ChangeState(State.Day);
+            return _messagesOut;
         }
 
         public List<Message> Update(Message message)
@@ -90,6 +90,14 @@ namespace Werewolf_Server
                 case CommandServer.NightSubmit:
                     NightSubmit(message);
                     break;
+
+                case CommandServer.SelectVote:
+                    SelectVote(message);
+                    break;
+
+                case CommandServer.SubmitVote:
+                    SubmitVote(message);
+                    break;
             }
             return _messagesOut;
         }
@@ -97,13 +105,53 @@ namespace Werewolf_Server
         //Returns all important information to the user
         public List<Message> GetReminderData(Player player)
         {
-            return new List<Message>();
+            List<Message> messages = new List<Message>();
+
+            //Active Player List
+            messages.Add(new Message("", CommandClient.PlayerList, AlivePlayersString));
+
+            //If dead, only tell they are dead
+            if (!player.alive)
+            {
+                messages.Add(new Message("", CommandClient.Murdered));
+                return messages;
+            }
+
+            //State
+            Message stateMessage = new Message("", CommandClient.State, "");
+            stateMessage.subCommand = state.ToString();
+            messages.Add(stateMessage);
+
+            //Role
+            messages.Add(new Message("", CommandClient.Role, player.RoleDetails));
+
+
+            //Remind of vote
+            if (state == State.Day)
+            {
+                Message fauxVoteMessage = new Message("", CommandServer.SelectVote, player.name);
+                List<string> voteList = SelectVote(fauxVoteMessage);
+
+                //Find any players ive already selected
+                Player? alreadySelectedPlayer = _players.Find(curPlayer => curPlayer.votedBy.Contains(player.name));
+                string alreadySelectedName = "";
+                if (alreadySelectedPlayer != null)
+                {
+                    alreadySelectedName = alreadySelectedPlayer.name;
+                }
+
+                Message voteListMessage = new Message("", CommandClient.SelectedPlayerList, voteList);
+                voteListMessage.subCommand = alreadySelectedName;
+                messages.Add(voteListMessage);
+            }
+
+            return messages;
         }
 
         public List<Role> GenerateRoles(int playerCount)
         {
             List<Role> roles = gameModes.currentMode.roles;
-            
+
 
             //Shuffle list
             Random random = new Random();
@@ -124,28 +172,14 @@ namespace Werewolf_Server
         }
         public void NightInit()
         {
-            state = State.Night;
-            _messagesOut.Add(new Message(
-                "host",
-                CommandClient.State,
-                state.ToString()
-                ));
+            ChangeState(State.Night);
 
-            //Notify of alive players
+            //Ready up all players
             foreach (Player player in AlivePlayers)
             {
-                _messagesOut.Add(new Message(
-                    player.name,
-                    CommandClient.PlayerList,
-                    AlivePlayersString
-                    ));
-                _messagesOut.Add(new Message(
-                    player.name,
-                    CommandClient.State,
-                    state.ToString()
-                    ));
 
                 player.votes = 0;
+                player.votedBy = new List<string>();
                 //Unready those with tasks
                 if (player.role.hasNightTask)
                 {
@@ -203,9 +237,36 @@ namespace Werewolf_Server
             {
                 _messagesOut.Add(new Message(
                     werewolf.name,
-                    CommandClient.WerewolfSelectedPlayerList,
+                    CommandClient.SelectedPlayerList,
                     attackList
                     ));
+            }
+
+        }
+
+        //Change the phase and notify all players including alive player list
+        private void ChangeState(State state)
+        {
+            this.state = state;
+            //Notify host of state
+            _messagesOut.Add(new Message(
+                "host",
+                CommandClient.State,
+                state.ToString()
+                ));
+
+            //Notify players of player list
+            foreach (Player player in AlivePlayers)
+            {
+                Message newStateMessage = new Message(
+                    player.name,
+                    CommandClient.State,
+                    AlivePlayersString
+                    );
+
+                newStateMessage.subCommand = state.ToString();
+
+                _messagesOut.Add(newStateMessage);
             }
 
         }
@@ -228,12 +289,6 @@ namespace Werewolf_Server
 
         private void FinishNight()
         {
-            state = State.Day;
-            _messagesOut.Add(new Message(
-                "host",
-                CommandClient.State,
-                state.ToString()
-                ));
 
             //Sanity check, find the player most bitten by werewolves
             Player murderedPlayer = null;
@@ -245,13 +300,6 @@ namespace Werewolf_Server
                     mostVotes = player.werewolvesAttacking;
                     murderedPlayer = player;
                 }
-
-                //Notify all its day
-                _messagesOut.Add(new Message(
-                    player.name,
-                    CommandClient.State,
-                    state.ToString()
-                    ));
             }
 
             if (murderedPlayer != null)
@@ -259,7 +307,171 @@ namespace Werewolf_Server
                 murderedPlayer.alive = false;
                 _messagesOut.Add(new Message(murderedPlayer.name, CommandClient.Murdered));
             }
+
+            ChangeState(State.Day);
+            CheckEndgame(true);
         }
 
+        private List<string> SelectVote(Message message)
+        {
+            List<string> voteList = new List<string>();
+
+            //Find the selected player
+            Player? selectedPlayer = _players.Find(player => player.name == message.data[0]);
+            if (selectedPlayer == null) { return voteList; }
+
+            //Select/Deselect
+            if (message.subCommand == "select")
+            {
+                //Cant select same person twice
+                if (!selectedPlayer.votedBy.Contains(message.player))
+                {
+                    selectedPlayer.votes++;
+                    selectedPlayer.votedBy.Add(message.player);
+                }
+            }
+            else if (message.subCommand == "deselect")
+            {
+                if (selectedPlayer.votes > 0)
+                {
+                    selectedPlayer.votes--;
+                    selectedPlayer.votedBy.Remove(message.player);
+                }
+            }
+
+            //Get names of players with how many voting
+            foreach (Player player in AlivePlayers)
+            {
+                voteList.Add($"{player.name};{player.votes}");
+            }
+
+            //Notify each werewolf of the new selection
+            foreach (Player player in AlivePlayers)
+            {
+                _messagesOut.Add(new Message(
+                    player.name,
+                    CommandClient.SelectedPlayerList,
+                    voteList
+                    ));
+            }
+
+            return voteList;
+        }
+
+        private void SubmitVote(Message message)
+        {
+            //Find the selected player
+            Player? selectedPlayer = _players.Find(player => player.name == message.data[0]);
+            if (selectedPlayer == null) { return; }
+
+            //Confirm Submission
+            selectedPlayer.lockedVotes++;
+            _messagesOut.Add(new Message(
+                message.player,
+                CommandClient.Submitted
+                ));
+
+            //Send locked votes list to host
+            List<string> lockedVoteList = new List<string>();
+            foreach (Player player in AlivePlayers)
+            {
+                lockedVoteList.Add($"{player.name};{player.lockedVotes}");
+            }
+            _messagesOut.Add(new Message(
+                "host",
+                CommandClient.SelectedPlayerList,
+                lockedVoteList
+                ));
+
+            //Check for end of voting
+            int totalLockedVotes = 0;
+            int highestLockedVotes = 0;
+            bool isTie = false;
+            Player highestVotedPlayer = null;
+            foreach (Player player in AlivePlayers)
+            {
+                totalLockedVotes += player.lockedVotes;
+                if (player.lockedVotes > highestLockedVotes)
+                {
+                    highestLockedVotes = player.lockedVotes;
+                    highestVotedPlayer = player;
+                }
+                else if (player.lockedVotes == highestLockedVotes)
+                {
+                    isTie = true;
+                }
+            }
+
+            //No majority
+            //and not all players voted
+            if (highestLockedVotes <= Math.Floor(AlivePlayers.Count / 2.0))
+            {
+                if (totalLockedVotes < AlivePlayers.Count)
+                {
+                    return;
+                }
+            }
+
+
+            //At this point the majority is found or all have voted
+            if (highestVotedPlayer != null && !isTie)
+            {
+                _messagesOut.Add(new Message(
+                    highestVotedPlayer.name,
+                    CommandClient.Murdered
+                    ));
+            }
+
+            CheckEndgame(true);
+        }
+
+        public Team CheckEndgame(bool canFinalise)
+        {
+            Team winningTeam = Team.None;
+
+            //Check werewolf win
+            if (Werewolves.Count >= AlivePlayers.Count / 2.0)
+            {
+                winningTeam = Team.Werewolf;
+            }
+
+            //Check villager win
+            else if (Werewolves.Count == 0)
+            {
+                winningTeam = Team.Villager;
+            }
+
+            if (winningTeam != Team.None)
+            {
+                if (canFinalise)//When testing this is false
+                {
+                    Endgame(winningTeam);
+                }
+            }
+
+            return winningTeam;
+        }
+
+        private void Endgame(Team winningTeam)
+        {
+            //Tell the host
+            _messagesOut.Add(new Message(
+                "host",
+                CommandClient.EndGame,
+                winningTeam.ToString()
+                ));
+
+            //Tell each player
+            foreach (Player player in _players)
+            {
+                _messagesOut.Add(new Message(
+                    player.name,
+                    CommandClient.EndGame,
+                    winningTeam.ToString()
+                    ));
+            }
+
+            state = State.Lobby;
+        }
     }
 }

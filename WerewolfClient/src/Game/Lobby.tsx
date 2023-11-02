@@ -6,7 +6,7 @@
 
 import { Button } from '@material-tailwind/react';
 import React, { useContext } from 'react';
-import { SocketContext } from '../App';
+import { CommandServer, SocketContext } from '../App';
 
 interface Props {
     players: Array<string>
@@ -27,7 +27,10 @@ export default function Lobby(props: Props) {
                 color="red"
                 onClick={() => {
 
-                    socket.send(`Leave;${sessionStorage.getItem("name")}`)
+                    socket.send({
+                        commandServer: CommandServer.Leave,
+                        player: sessionStorage.getItem("name")?.toString()
+                    })
                     sessionStorage.removeItem("name")
                     window.location.reload()
                 }}

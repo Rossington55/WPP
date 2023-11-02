@@ -1,6 +1,6 @@
 ﻿namespace Werewolf_Server
 {
-    public enum Team { Villager, Werewolf, Tanner, Vampire }
+    public enum Team { None, Villager, Werewolf, Tanner, Vampire }
     public abstract class Role
     {
         public string name;

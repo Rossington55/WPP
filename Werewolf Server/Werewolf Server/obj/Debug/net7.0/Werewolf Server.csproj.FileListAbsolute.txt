@@ -24,3 +24,6 @@ C:\WIP\Werewolf Server\Werewolf Server\obj\Debug\net7.0\Werewolf Server.pdb
 C:\WIP\Werewolf Server\Werewolf Server\obj\Debug\net7.0\Werewolf Server.genruntimeconfig.cache
 C:\WIP\Werewolf Server\Werewolf Server\obj\Debug\net7.0\ref\Werewolf Server.dll
 C:\WIP\Werewolf Server\Werewolf Server\bin\Debug\net7.0\GameFiles\Modes\GameModes.json
+C:\WIP\Werewolf Server\Werewolf Server\bin\Debug\net7.0\Newtonsoft.Json.dll
+C:\WIP\Werewolf Server\Werewolf Server\obj\Debug\net7.0\Werewolf Server.csproj.AssemblyReference.cache
+C:\WIP\Werewolf Server\Werewolf Server\obj\Debug\net7.0\Werewolf Server.csproj.CopyComplete

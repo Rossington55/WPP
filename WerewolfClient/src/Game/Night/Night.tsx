@@ -7,7 +7,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Role, RoleContext, Team } from '../Game';
 import { Button, Chip, List, ListItem, ListItemSuffix } from '@material-tailwind/react';
-import { SocketContext } from '../../App';
+import { CommandClient, CommandServer, SocketContext } from '../../App';
 
 interface Props {
     players: Array<string>,
@@ -22,14 +22,15 @@ interface Player {
 
 export default function Night(props: Props) {
     const [players, setPlayers] = useState<Array<Player>>([])
-    const myName = sessionStorage.getItem("name")
+    const myName = sessionStorage.getItem("name") ?? ""
     const socket = useContext(SocketContext)
     const role = useContext(RoleContext)
 
     useEffect(() => {
-        switch (socket.recieved.action) {
-            case "WerewolfClick":
-                handleWerewolfSelected()
+        switch (socket.recieved.commandClient) {
+            case CommandClient.SelectedPlayerList:
+                handleOtherWerewolfSelect()
+                console.log(socket.recieved)
                 break
         }
     }, [socket.recieved])
@@ -49,55 +50,67 @@ export default function Night(props: Props) {
     function handleSelect(i: number) {
         let newPlayers = [...players]
 
+        //Currently code only accounts for Werewolves
+
         //No multiclick
+        //First deselect ALL players
         if (!role?.canMultiClick) {
             //Only select one at a time
             for (let player of newPlayers) {
                 if (player.selectedByMe) {
-                    socket.send(`WerewolfClick;${myName};${player.name};false`)
+                    socket.send({
+                        commandServer: CommandServer.WerewolfSelectPlayer,
+                        player: myName,
+                        data: [player.name],
+                        subCommand: "deselect"
+                    })
                 }
                 player.selectedByMe = false
             }
         }
 
+        //Select just this player
         const player = newPlayers[i]
 
         newPlayers[i].selectedByMe = !player.selectedByMe
-        //WWClick;MyName;SelectedName;Did Select
-        socket.send(`WerewolfClick;${myName};${player.name};${player.selectedByMe}`)
+        socket.send({
+            commandServer: CommandServer.WerewolfSelectPlayer,
+            player: myName,
+            data: [player.name],
+            subCommand: "select"
+        })
 
         setPlayers(newPlayers)
     }
 
-    function handleWerewolfSelected() {
-        let playersCopy = [...players]
-        const selected = !socket.recieved.value.includes("!")
-        let i = players.findIndex(player =>
-            player.name === socket.recieved.value.replace("!", "")
-        )
+    function handleOtherWerewolfSelect() {
+        let newPlayers = [...players]
+        if (!socket.recieved.data) { return }
+        for (let player of socket.recieved.data) {
+            const playerData = player.split(';')
 
-        //Didnt find any players
-        if (i == -1) { return }
-
-        if (selected) {
-            playersCopy[i].selectedCount++
-        } else {//Deselected
-            playersCopy[i].selectedCount--
+            //Find the respective player and update the attack
+            const playerId = newPlayers.findIndex(curPlayer => curPlayer.name === playerData[0])
+            newPlayers[playerId].selectedCount = Number(playerData[1])
         }
 
-        setPlayers(playersCopy)
+        setPlayers(newPlayers)
     }
 
     function handleReady() {
-        let output = `NightSubmit;${myName};`
+        //Create list of selected player names
+        let selectedPlayerNames: Array<string> = []
         const selectedPlayers = players.filter(player => player.selectedByMe)
         selectedPlayers.map(player => {
-            output += player.name
-            output += ","
+            selectedPlayerNames.push(player.name)
         })
 
-        output = output.substring(0, output.length - 1)
-        socket.send(output)
+
+        socket.send({
+            commandServer: CommandServer.NightSubmit,
+            player: myName,
+            data: selectedPlayerNames
+        })
     }
 
 
@@ -121,10 +134,10 @@ export default function Night(props: Props) {
         return players.findIndex(player => player.selectedByMe) > -1
     }
 
-
     return (
         <article>
             <h1>NIGHT TIME</h1>
+
 
             {!props.done ?
                 <article>

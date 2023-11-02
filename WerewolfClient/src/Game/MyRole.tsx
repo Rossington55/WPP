@@ -31,7 +31,7 @@ export default function MyRole() {
     return (
         <article className={`card ${getColor()}`}>
             <h1>Your role is {role.name}</h1>
-            <h2>Team: {role.team}</h2>
+            <h2>Team: {Team[Number(role.team)]}</h2>
             <h2>Aim: {role.description}</h2>
 
         </article>

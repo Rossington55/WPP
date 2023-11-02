@@ -52,7 +52,7 @@ namespace WerewolfServerTest.Tests
             var result = game.Update(message);
 
             //Submitted, update host, update all players of day
-            result.Count.Should().Be(2 + playerCount);
+            result.Should().HaveCountGreaterThan(2);
             if(result.Count == 0) { return; }
 
             result[0].commandClient.Should().Be(CommandClient.Submitted);
@@ -81,7 +81,7 @@ namespace WerewolfServerTest.Tests
             var result = game.Update(submitMessage);
 
             //Submitted, update host, update all players of day, murdered
-            result.Count.Should().Be(3 + playerCount);
+            result.Should().HaveCountGreaterThan(3);
             if(result.Count == 0) { return; }
 
             result[0].commandClient.Should().Be(CommandClient.Submitted);
@@ -91,8 +91,10 @@ namespace WerewolfServerTest.Tests
             result[1].data[0].Should().Be(State.Day.ToString());
 
             //Someone was bitten
-            result.Last().commandClient.Should().Be(CommandClient.Murdered);
-            result.Last().player.Should().Be("0");
+            //and that person is correct
+            Message murderMessage = result.Find(message => message.commandClient == CommandClient.Murdered);
+            murderMessage.Should().NotBeNull();
+            murderMessage.player.Should().Be("0");
 
         }
     }

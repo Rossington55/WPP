@@ -107,11 +107,14 @@ namespace Werewolf_Server
                 conn = _connections.Last();
             }
 
-            //Refresh player list
+            //Refresh player list (when not in play)
+            if(_game == null || _game.state == State.Lobby)
+            {
             BroadcastAll(new Message(
                 CommandClient.PlayerList,
                 GetPlayerList()
                 ));
+            }
 
             //Confirm success with latest connection
             conn.Broadcast(new Message(CommandClient.Joined));
@@ -162,6 +165,7 @@ namespace Werewolf_Server
 
                 if (conn != null)
                 {
+                Thread.Sleep(50);
                     conn.Broadcast(message);
                 }
 
@@ -181,6 +185,7 @@ namespace Werewolf_Server
                 List<Message> result = _game.GetReminderData(user.player);
                 foreach (Message message in result)
                 {
+                    Thread.Sleep(50);
                     user.Broadcast(message);
                 }
             }

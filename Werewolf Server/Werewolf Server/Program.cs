@@ -4,8 +4,7 @@ using System.Net.WebSockets;
 using Werewolf_Server;
 using System.Diagnostics;
 using System.Reflection.Metadata.Ecma335;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls("http://localhost:8080/");
@@ -21,7 +20,7 @@ app.Map("/ws", async context =>
         using var ws = await context.WebSockets.AcceptWebSocketAsync();
 
         //Let this user know they're connected
-        Connection connection = new Connection("",ws);
+        Connection connection = new Connection("", ws);
         connection.Broadcast(new Message(CommandClient.Connected));
 
         //Decode then...
@@ -31,9 +30,15 @@ app.Map("/ws", async context =>
                 //Normal message
                 if (result.MessageType == WebSocketMessageType.Text)
                 {
-                    Message message = JsonSerializer.Deserialize<Message>(Encoding.UTF8.GetString(buffer, 0, result.Count));
-                    mrBob.RecieveMessage(ws, message);
-                    LogMessage(message);
+                    try
+                    {
+                        Message message = JsonConvert.DeserializeObject<Message>(Encoding.UTF8.GetString(buffer, 0, result.Count));
+                        mrBob.RecieveMessage(ws, message);
+                        LogMessage(message);
+                    }catch(Exception ex)
+                    {
+                        Console.WriteLine("ERROR Invalid message recieved");
+                    }
                 }
                 //Is closing
                 else if (result.MessageType == WebSocketMessageType.Close || ws.State == WebSocketState.Aborted)

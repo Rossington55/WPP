@@ -1,43 +1,53 @@
 import { useState, useContext, useEffect } from 'react'
 import BasicField from './generics/fields/BasicField'
 import { Button } from '@material-tailwind/react'
-import { SocketContext } from './App'
+import { CommandClient, CommandServer, SocketContext } from './App'
 
 interface Props {
     onJoin: () => void
 }
 
 export default function Login(props: Props) {
+    const [loading, setLoading] = useState<boolean>(false)
     const [name, setName] = useState<string>("")
     const [errMsg, setErrMsg] = useState<string>("")
     const socket = useContext(SocketContext)
 
     useEffect(() => {
-        switch (socket.recieved.action) {
+        switch (socket.recieved.commandClient) {
             //If just connected, attempt joining
-            case "Connected":
+            case CommandClient.Connected:
                 setTimeout(() => {
-                    socket.send(`Join;${name}`)
-
+                    socket.send({
+                        commandServer: CommandServer.Join,
+                        player: name
+                    })
                 }, 1000);
                 return
-            case "Players":
-            case "Joined":
+            case CommandClient.Joined:
                 //Joining successful, go to lobby
+                setLoading(false)
                 sessionStorage.setItem("name", name)
                 props.onJoin()
                 return
         }
 
-        const oldName = sessionStorage.getItem("name")
-        if (oldName) {
-            setName(oldName)
-            socket.rejoin()
-        }
     },
         [
             socket.recieved,
         ])
+
+    useEffect(() => {
+        const oldName = sessionStorage.getItem("name")
+        if (oldName) {
+            setLoading(true)
+            setName(oldName)
+
+            setTimeout(() => {
+                socket.rejoin()
+            }, 1000);
+        }
+    }, [])
 
     function handleLogin() {
         if (!name) {
@@ -58,7 +68,11 @@ export default function Login(props: Props) {
                     label="Name"
                 />
 
-                <Button color="blue" onClick={handleLogin}>
+                <Button
+                    color="blue"
+                    onClick={handleLogin}
+                    disabled={loading}
+                >
                     Join
                 </Button>
 

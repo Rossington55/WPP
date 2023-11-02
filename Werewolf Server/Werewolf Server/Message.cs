@@ -1,18 +1,35 @@
-﻿namespace Werewolf_Server
+﻿using System.Text.Json.Serialization;
+
+namespace Werewolf_Server
 {
-    public enum CommandServer { Join, Leave, GetPlayers, Host, Start, RemindState, StartNight, WerewolfSelectPlayer, NightSubmit }
+    public enum CommandServer { 
+        None,                   //0
+        Join,                   //1
+        Leave,                  //2
+        GetPlayers,             //3
+        Host,                   //4
+        Start,                  //5
+        RemindState,            //6
+        StartNight,             //7
+        WerewolfSelectPlayer,   //8 
+        NightSubmit,            //9
+        SelectVote,             //10 Choosse someone to vote but not locked in
+        SubmitVote,             //11 Lock in a vote
+    }
     public enum CommandClient
     {
-        Connected,
-        Joined,
-        Left,
-        HostFound,
-        PlayerList,
-        Role,
-        WerewolfSelectedPlayerList,
-        Submitted,
-        Murdered,
-        State
+        None,               //0
+        Connected,          //1
+        Joined,             //2
+        Left,               //3 
+        HostFound,          //4
+        PlayerList,         //5
+        Role,               //6
+        SelectedPlayerList, //7
+        Submitted,          //8
+        Murdered,           //9
+        State,              //10
+        EndGame             //11
     }
 
 
@@ -24,6 +41,8 @@
         public string player { get; set; }
         public List<string> data { get; set; }
 
+        [JsonConstructor]
+        public Message() { }
 
         public Message(string player, CommandClient command, List<string> data)
         {
@@ -31,6 +50,7 @@
             this.data = data;
             this.commandClient = command;
         }
+
         public Message(string player, CommandServer command, List<string> data)
         {
             this.player = player;
