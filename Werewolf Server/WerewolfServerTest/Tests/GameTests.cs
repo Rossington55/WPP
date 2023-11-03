@@ -233,11 +233,11 @@ namespace WerewolfServerTest.Tests
             var result = game.Update(message);
             if (selectedPlayer != "1")
             {
-                result.Should().HaveCount(0);
+                result.Should().HaveCount(1);
                 return;
             }
 
-            result.Should().HaveCountGreaterThan(0);
+            result.Should().HaveCountGreaterThan(1);
             if (result.Count == 0) { return; }
 
             result[0].commandClient.Should().Be(CommandClient.Submitted);
@@ -248,7 +248,7 @@ namespace WerewolfServerTest.Tests
         {
             string selectedPlayer = "0";
             Message message = new Message(
-                "",
+                "0",
                 CommandServer.SubmitVote,
                 selectedPlayer
                 );
@@ -263,6 +263,7 @@ namespace WerewolfServerTest.Tests
             result.Should().HaveCountLessThan(3);
 
             //Second vote - majority
+            message.player = "1";
             result = game.Update(message);
             result.Should().HaveCountGreaterThan(2);
             result[2].commandClient.Should().Be(CommandClient.Murdered);   
@@ -273,7 +274,7 @@ namespace WerewolfServerTest.Tests
         public void Game_Update_SubmitVote_SplitVote()
         {
             Message message = new Message(
-                "",
+                "0",
                 CommandServer.SubmitVote,
                 "0"
                 );
@@ -290,6 +291,7 @@ namespace WerewolfServerTest.Tests
 
             //Second vote - no majority
             message.data[0] = "1";//Select player 1
+            message.player = "1";
             result = game.Update(message);
             result.Should().HaveCountGreaterThan(2);
             result[2].commandClient.Should().NotBe(CommandClient.Murdered);   
@@ -299,7 +301,7 @@ namespace WerewolfServerTest.Tests
         public void Game_Update_SubmitVote_PreferenceVote()
         {
             Message message = new Message(
-                "",
+                "0",
                 CommandServer.SubmitVote,
                 "0"
                 );
@@ -315,24 +317,29 @@ namespace WerewolfServerTest.Tests
             result.Should().HaveCountLessThan(3);
 
             //Vote 2 - p0:2
+            message.player = "1";
             result = game.Update(message);
             result.Should().HaveCountLessThan(3);
-            
+
             //Vote 3 - p0:3, 
+            message.player = "2";
             result = game.Update(message);
             result.Should().HaveCountLessThan(3);
 
             //Vote 4 - p0:3, p1:1
+            message.player = "3";
             message.data[0] = "1";//Select player 0
             result = game.Update(message);
             result.Should().HaveCountLessThan(3);
 
             //Vote 5 - p0:3, p1:2
+            message.player = "4";
             message.data[0] = "2";//Select player 0
             result = game.Update(message);
             result.Should().HaveCountLessThan(3);
 
             //Vote 6 - FINAL - p0:3, p1:2, p2:1
+            message.player = "5";
             message.data[0] = "3";//Select player 0
             result = game.Update(message);
             result.Should().HaveCountGreaterThan(2);

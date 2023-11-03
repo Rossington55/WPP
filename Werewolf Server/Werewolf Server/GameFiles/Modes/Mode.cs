@@ -18,6 +18,15 @@
                     case "Werewolf":
                         roles.Add(new Werewolf());
                         break;
+                    case "Villager":
+                        roles.Add(new Villager());
+                        break;
+                    case "Seer":
+                        roles.Add(new Seer());
+                        break;
+                    case "ApprenticeSeer":
+                        roles.Add(new ApprenticeSeer());
+                        break;
                 }
             }
 

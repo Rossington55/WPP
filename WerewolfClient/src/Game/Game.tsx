@@ -64,9 +64,6 @@ export default function Game() {
             case CommandClient.Murdered:
                 setDead(true)
                 break
-            case CommandClient.Submitted:
-                setDone(true)
-                break
 
 
         }
@@ -133,14 +130,12 @@ export default function Game() {
                     {gameState === GameState.Daytime &&
                         <Daytime
                             players={players}
-                            done={done}
                         />
                     }
 
                     {gameState === GameState.Nighttime &&
                         <Night
                             players={players}
-                            done={done}
                         />
                     }
                     {gameState === GameState.EndGame &&
@@ -163,7 +158,7 @@ export default function Game() {
                             color="green"
                             onClick={() => socket.send({
                                 commandServer: CommandServer.Start,
-                                subCommand: "Mafia"//FOR DEV ONLY
+                                subCommand: "AllSeer"//FOR DEV ONLY
                             })}
                         >
                             Start Game

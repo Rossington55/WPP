@@ -12,7 +12,7 @@ namespace Werewolf_Server
         private List<Message> _messagesOut;
         private GameModes gameModes;
 
-        private List<Player> AlivePlayers
+        public List<Player> AlivePlayers
         {
             get
             {
@@ -202,12 +202,13 @@ namespace Werewolf_Server
         {
             Player? player = _players.Find(player => player.name == message.player);
             if (player == null) { return; }
+            if (!player.role.hasNightTask) { return; }
 
             string result = player.role.NightTask(message, AlivePlayers);
 
             //Player successfully submitted
             player.ready = true;
-            _messagesOut.Add(new Message(player.name, CommandClient.Submitted));
+            _messagesOut.Add(new Message(player.name, CommandClient.Submitted, result));
             CheckNightFinished();
         }
 
@@ -327,6 +328,18 @@ namespace Werewolf_Server
         {
             murderedPlayer.alive = false;
             _messagesOut.Add(new Message(murderedPlayer.name, CommandClient.Murdered));
+
+            //Activate the apprentice Seer
+            if(murderedPlayer.role.name == "Seer")
+            {
+                //Check if playing with apprentice
+                Player? apprentice = GetPlayerByRole("Apprentice Seer");
+                if (apprentice != null)
+                {
+                    apprentice.role.hasNightTask = true;
+                    _messagesOut.Add(new Message(apprentice.name, CommandClient.Role, apprentice.RoleDetails));
+                }
+            }
         }
 
         private List<string> SelectVote(Message message)

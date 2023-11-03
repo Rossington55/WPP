@@ -11,7 +11,6 @@ import { CommandClient, CommandServer, SocketContext } from '../../App';
 
 interface Props {
     players: Array<string>,
-    done: boolean
 }
 
 interface Player {
@@ -22,12 +21,17 @@ interface Player {
 
 export default function Night(props: Props) {
     const [players, setPlayers] = useState<Array<Player>>([])
+    const [submitted, setSubmitted] = useState<boolean>(false)
+    const [nightInfo, setNightInfo] = useState<string>("")
     const myName = sessionStorage.getItem("name") ?? ""
     const socket = useContext(SocketContext)
     const role = useContext(RoleContext)
 
     useEffect(() => {
         switch (socket.recieved.commandClient) {
+            case CommandClient.Submitted:
+                handleNightInfo()
+                break
             case CommandClient.SelectedPlayerList:
                 handleOtherWerewolfSelect()
                 break
@@ -49,14 +53,15 @@ export default function Night(props: Props) {
     function handleSelect(i: number) {
         let newPlayers = [...players]
 
-        //Currently code only accounts for Werewolves
 
         //No multiclick
         //First deselect ALL players
         if (!role?.canMultiClick) {
             //Only select one at a time
             for (let player of newPlayers) {
-                if (player.selectedByMe) {
+
+                //WEREWOLF CLICK
+                if (player.selectedByMe && role?.team === Team.Werewolf) {
                     socket.send({
                         commandServer: CommandServer.WerewolfSelectPlayer,
                         player: myName,
@@ -72,12 +77,16 @@ export default function Night(props: Props) {
         const player = newPlayers[i]
 
         newPlayers[i].selectedByMe = !player.selectedByMe
-        socket.send({
-            commandServer: CommandServer.WerewolfSelectPlayer,
-            player: myName,
-            data: [player.name],
-            subCommand: "select"
-        })
+
+        //WEREWOLF CLICK
+        if (role?.team == Team.Werewolf) {
+            socket.send({
+                commandServer: CommandServer.WerewolfSelectPlayer,
+                player: myName,
+                data: [player.name],
+                subCommand: "select"
+            })
+        }
 
         setPlayers(newPlayers)
     }
@@ -112,7 +121,6 @@ export default function Night(props: Props) {
         })
     }
 
-
     function canBeReady() {
 
         //Werewolf validation
@@ -133,12 +141,18 @@ export default function Night(props: Props) {
         return players.findIndex(player => player.selectedByMe) > -1
     }
 
+    function handleNightInfo() {
+        setSubmitted(true)
+        if (!socket.recieved.data) { return }
+        setNightInfo(socket.recieved.data[0])
+    }
+
     return (
         <article>
             <h1>NIGHT TIME</h1>
 
 
-            {!props.done ?
+            {!submitted ?
                 <article>
 
                     <h2>{role?.nightDescription}</h2>
@@ -170,13 +184,33 @@ export default function Night(props: Props) {
                             color='blue'
                             onClick={handleReady}
                         >
-                            Ready
+                            Submit
                         </Button>
                     }
                 </article>
                 :
                 <article>
                     Done for the night
+
+                    {nightInfo !== "" &&
+                        <article className='gap-5'>
+
+                            {/* Selected Player Names */}
+                            <article>
+                                <h2>Selected</h2>
+                                {players.map((player, i) => (
+                                    <>
+                                        {player.selectedByMe &&
+                                            <h3>{player.name}</h3>
+                                        }
+                                    </>
+                                ))}
+                            </article>
+
+                            {/* Result */}
+                            <h2>{nightInfo}</h2>
+                        </article>
+                    }
                 </article>
             }
         </article>

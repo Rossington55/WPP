@@ -11,7 +11,6 @@ import { Button, Chip, List, ListItem, ListItemSuffix } from '@material-tailwind
 
 interface Props {
     players: Array<string>,
-    done: boolean
 }
 
 interface Player {
@@ -22,6 +21,7 @@ interface Player {
 
 export default function Daytime(props: Props) {
     const [players, setPlayers] = useState<Array<Player>>([])
+    const [submitted, setSubmitted] = useState<boolean>(false)
     const myName = sessionStorage.getItem("name") ?? ""
     const socket = useContext(SocketContext)
 
@@ -29,6 +29,9 @@ export default function Daytime(props: Props) {
         switch (socket.recieved.commandClient) {
             case CommandClient.SelectedPlayerList:
                 populateSelectedPlayers()
+                break
+            case CommandClient.Submitted:
+                setSubmitted(true)
                 break
         }
     }, [socket.recieved])
@@ -62,7 +65,7 @@ export default function Daytime(props: Props) {
     }
     function handleSelect(i: number) {
         //Cant change vote after submitting
-        if (props.done) { return }
+        if (submitted) { return }
 
         let newPlayers = [...players]
 
