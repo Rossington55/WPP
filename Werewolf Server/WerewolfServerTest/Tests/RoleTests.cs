@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -87,8 +88,9 @@ namespace WerewolfServerTest.Tests
             result[0].commandClient.Should().Be(CommandClient.Submitted);
 
             //Only waiting for me, should all be ready to go to day
-            result[1].commandClient.Should().Be(CommandClient.State);
-            result[1].data[0].Should().Be(State.Day.ToString());
+            Message? dayMessage = result.Find(msg => msg.commandClient == CommandClient.State);
+            dayMessage.Should().NotBeNull();
+            dayMessage.data[0].Should().Be(State.Day.ToString());
 
             //Someone was bitten
             //and that person is correct

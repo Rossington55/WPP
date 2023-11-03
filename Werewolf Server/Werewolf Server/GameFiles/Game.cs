@@ -145,6 +145,12 @@ namespace Werewolf_Server
                 messages.Add(voteListMessage);
             }
 
+            //Remind if submitted
+            if (player.ready)
+            {
+                messages.Add(new Message("", CommandClient.Submitted, ""));
+            }
+
             return messages;
         }
 
@@ -269,6 +275,12 @@ namespace Werewolf_Server
                 _messagesOut.Add(newStateMessage);
             }
 
+            //Reset all players
+            foreach (Player player in _players)
+            {
+                player.ready = false;
+            }
+
         }
 
         //Check everyone is ready
@@ -304,12 +316,17 @@ namespace Werewolf_Server
 
             if (murderedPlayer != null)
             {
-                murderedPlayer.alive = false;
-                _messagesOut.Add(new Message(murderedPlayer.name, CommandClient.Murdered));
+                MurderPlayer(murderedPlayer);
             }
 
             ChangeState(State.Day);
             CheckEndgame(true);
+        }
+
+        private void MurderPlayer(Player murderedPlayer)
+        {
+            murderedPlayer.alive = false;
+            _messagesOut.Add(new Message(murderedPlayer.name, CommandClient.Murdered));
         }
 
         private List<string> SelectVote(Message message)
@@ -360,16 +377,21 @@ namespace Werewolf_Server
 
         private void SubmitVote(Message message)
         {
-            //Find the selected player
-            Player? selectedPlayer = _players.Find(player => player.name == message.data[0]);
-            if (selectedPlayer == null) { return; }
+            //Confirm Submission and verify not already voted
+            Player? me = _players.Find(player => player.name == message.player);
+            if (me == null || me.ready) { return; }
+            me.ready = true;
 
-            //Confirm Submission
-            selectedPlayer.lockedVotes++;
             _messagesOut.Add(new Message(
                 message.player,
                 CommandClient.Submitted
                 ));
+
+            //Find the selected player
+            Player? selectedPlayer = _players.Find(player => player.name == message.data[0]);
+            if (selectedPlayer == null) { return; }
+
+            selectedPlayer.lockedVotes++;
 
             //Send locked votes list to host
             List<string> lockedVoteList = new List<string>();
@@ -416,10 +438,7 @@ namespace Werewolf_Server
             //At this point the majority is found or all have voted
             if (highestVotedPlayer != null && !isTie)
             {
-                _messagesOut.Add(new Message(
-                    highestVotedPlayer.name,
-                    CommandClient.Murdered
-                    ));
+                MurderPlayer(highestVotedPlayer);
             }
 
             CheckEndgame(true);

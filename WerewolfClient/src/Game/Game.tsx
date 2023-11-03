@@ -64,6 +64,9 @@ export default function Game() {
             case CommandClient.Murdered:
                 setDead(true)
                 break
+            case CommandClient.Submitted:
+                setDone(true)
+                break
 
 
         }
@@ -130,6 +133,7 @@ export default function Game() {
                     {gameState === GameState.Daytime &&
                         <Daytime
                             players={players}
+                            done={done}
                         />
                     }
 

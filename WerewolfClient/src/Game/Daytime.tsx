@@ -7,10 +7,11 @@
 import React, { useContext, useEffect, useState } from 'react';
 import MyRole from './MyRole';
 import { CommandClient, CommandServer, SocketContext } from '../App';
-import { Chip, List, ListItem, ListItemSuffix } from '@material-tailwind/react';
+import { Button, Chip, List, ListItem, ListItemSuffix } from '@material-tailwind/react';
 
 interface Props {
     players: Array<string>,
+    done: boolean
 }
 
 interface Player {
@@ -60,6 +61,9 @@ export default function Daytime(props: Props) {
         setPlayers(newPlayers)
     }
     function handleSelect(i: number) {
+        //Cant change vote after submitting
+        if (props.done) { return }
+
         let newPlayers = [...players]
 
         //Only select one at a time
@@ -92,6 +96,17 @@ export default function Daytime(props: Props) {
         setPlayers(newPlayers)
     }
 
+    function submitVote() {
+        const selectedPlayer = players.find(player => player.selectedByMe)
+        if (!selectedPlayer) { return }
+
+        socket.send({
+            commandServer: CommandServer.SubmitVote,
+            player: myName,
+            data: [selectedPlayer.name]
+        })
+    }
+
     return (
         <article>
             It is Daytime
@@ -116,6 +131,15 @@ export default function Daytime(props: Props) {
                     </ListItem>
                 ))}
             </List>
+            {/* Submit */}
+
+            <Button
+                color="blue"
+                disabled={props.done}
+                onClick={() => submitVote()}
+            >
+                Lock Vote
+            </Button>
         </article>
     );
 }

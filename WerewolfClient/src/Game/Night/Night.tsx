@@ -30,7 +30,6 @@ export default function Night(props: Props) {
         switch (socket.recieved.commandClient) {
             case CommandClient.SelectedPlayerList:
                 handleOtherWerewolfSelect()
-                console.log(socket.recieved)
                 break
         }
     }, [socket.recieved])
