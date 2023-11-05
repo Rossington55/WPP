@@ -9,7 +9,7 @@ namespace Werewolf_Server.GameFiles.Modes
 
         public GameModes()
         {
-            string json = File.ReadAllText("C:\\WIP\\Werewolf Server\\Werewolf Server\\GameFiles\\Modes\\GameModes.json");
+            string json = File.ReadAllText("./GameFiles/Modes/GameModes.json");
             modes = JsonSerializer.Deserialize<List<Mode>>(json);
             currentMode = new Mode();
         }

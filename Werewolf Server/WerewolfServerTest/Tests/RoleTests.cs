@@ -342,5 +342,61 @@ namespace WerewolfServerTest.Tests
             nightInfoMessage.data[1].Should().Contain(testRole.description);
 
         }
+
+        [Fact]
+        public void Bodyguard_Submit()
+        {
+            InitGameForNight(3, "Custom;Bodyguard;Villager;Seer");
+            Player bodyguard = game.GetPlayerByRole("Bodyguard");
+            Player labRat = game.GetPlayerByRole("Villager");
+            Player seer = game.GetPlayerByRole("Seer");
+
+            for (int i = 0; i < 4; i++)
+            {
+                //Bite the lab rat
+
+                SetServerMessage(bodyguard.name, labRat.name);
+
+                if (i == 2)
+                {
+                    SetServerMessage(bodyguard.name, seer.name);
+                    seer.werewolvesAttacking = 1;
+                    labRat.werewolvesAttacking = 0;
+
+                }
+                else
+                {
+                    seer.werewolvesAttacking = 0;
+                    labRat.werewolvesAttacking = 1;
+                }
+                game.Update(serverMessage);
+
+                game.FinishNight();
+
+                switch (i)
+                {
+
+                    case 0: 
+                        labRat.alive.Should().BeTrue();
+                        break;
+                    case 1: 
+                        labRat.alive.Should().BeFalse();
+                        break;
+                    case 2:
+                        labRat.alive.Should().BeTrue();
+                        seer.alive.Should().BeTrue();
+                        break;
+                    case 3:
+                        labRat.alive.Should().BeTrue();
+                        seer.alive.Should().BeTrue();
+                        break;
+                }
+
+                //Revive the rat
+                labRat.alive = true;
+                labRat.deathTimer = -1;
+                seer.alive = true;
+            }
+        }
     }
 }

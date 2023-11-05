@@ -27,6 +27,8 @@ export default function Night(props: Props) {
     const socket = useContext(SocketContext)
     const role = useContext(RoleContext)
 
+    const lastSelectedPlayers: Array<string> = JSON.parse(sessionStorage.getItem("lastSelectedPlayers") || "[]")
+
     useEffect(() => {
         switch (socket.recieved.commandClient) {
             case CommandClient.Submitted:
@@ -143,6 +145,8 @@ export default function Night(props: Props) {
 
     function handleNightInfo() {
         setSubmitted(true)
+        const selectedPlayers = players.filter(player => player.selectedByMe).map(player => player.name);
+        sessionStorage.setItem("lastSelectedPlayers", JSON.stringify(selectedPlayers));
         if (!socket.recieved.data) { return }
         setNightInfo(socket.recieved.data[0])
     }
@@ -164,6 +168,7 @@ export default function Night(props: Props) {
                                     key={i}
                                     selected={player.selectedByMe}
                                     onClick={() => handleSelect(i)}
+                                    disabled={!role.canSelectLast && lastSelectedPlayers.includes(player.name)}
                                 >
                                     {player.name}
                                     <ListItemSuffix>

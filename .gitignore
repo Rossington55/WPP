@@ -1,1 +1,7 @@
 Unity/
+.vs/
+Werewolf Server/.vs/
+Werewolf Server/Werewolf Server/bin/
+Werewolf Server/Werewolf Server/obj
+Werewolf Server/WerewolfServerTest/bin
+Werewolf Server/WerewolfServerTest/obj
