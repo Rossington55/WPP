@@ -197,7 +197,7 @@ namespace Werewolf_Server
                 }
 
                 //Mark down each death timer
-                if(player.deathTimer > 0)
+                if (player.deathTimer > 0)
                 {
                     player.deathTimer--;
                 }
@@ -322,15 +322,24 @@ namespace Werewolf_Server
                 }
 
                 //Check if player is due to die anyway
-                if(player.deathTimer == 0)
+                if (player.deathTimer == 0)
                 {
                     MurderPlayer(player);
                 }
             }
 
+            //Death by werewolf
             if (murderedPlayer != null)
             {
-                MurderPlayer(murderedPlayer);
+                //Countdown tough guy if not already counting
+                if (murderedPlayer.role.name == "Tough Guy" && murderedPlayer.deathTimer < 0)
+                {
+                    murderedPlayer.deathTimer = 1;
+                }
+                else
+                {
+                    MurderPlayer(murderedPlayer);
+                }
             }
 
             ChangeState(State.Day);
@@ -342,11 +351,12 @@ namespace Werewolf_Server
             //Dont kill invincible players
             if (murderedPlayer.invincible) { return; }
 
+
             murderedPlayer.alive = false;
             _messagesOut.Add(new Message(murderedPlayer.name, CommandClient.Murdered));
 
             //Activate the apprentice Seer
-            if(murderedPlayer.role.name == "Seer")
+            if (murderedPlayer.role.name == "Seer")
             {
                 //Check if playing with apprentice
                 Player? apprentice = GetPlayerByRole("Apprentice Seer");

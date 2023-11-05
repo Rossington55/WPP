@@ -139,7 +139,7 @@ namespace WerewolfServerTest.Tests
         [Fact]
         public void ApprenticeSeer_Submit()
         {
-            InitGameForNight(4, "Custom;Seer;ApprenticeSeer;Werewolf;Villager");
+            InitGameForNight(4, "Custom;Seer;Apprentice Seer;Werewolf;Villager");
             Player seer = game.GetPlayerByRole("Seer");
             Player apprentice = game.GetPlayerByRole("Apprentice Seer");
             Player werewolf = game.GetPlayerByRole("Werewolf");
@@ -303,6 +303,24 @@ namespace WerewolfServerTest.Tests
                 labRat.alive = true;
                 labRat.deathTimer = -1;
             }
+        }
+
+        [Fact]
+        public void ToughGuy()
+        {
+            InitGameForNight(1, "Custom;Tough Guy");
+            Player toughGuy = game.GetPlayerByRole("Tough Guy");
+
+            //Dont die first time
+            toughGuy.werewolvesAttacking++;
+            game.FinishNight();
+            toughGuy.alive.Should().BeTrue();
+
+            //Die second night
+            game.NightInit();
+            game.FinishNight();
+            toughGuy.alive.Should().BeFalse();
+
         }
     }
 }

@@ -28,7 +28,7 @@ namespace Werewolf_Server.GameFiles.Modes
                     case "Seer":
                         roles.Add(new Seer());
                         break;
-                    case "ApprenticeSeer":
+                    case "Apprentice Seer":
                         roles.Add(new ApprenticeSeer());
                         break;
                     case "Witch":
@@ -45,6 +45,9 @@ namespace Werewolf_Server.GameFiles.Modes
                         break;
                     case "Priest":
                         roles.Add(new Priest());
+                        break;
+                    case "Tough Guy":
+                        roles.Add(new ToughGuy());
                         break;
                 }
             }
