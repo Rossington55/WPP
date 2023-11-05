@@ -49,6 +49,9 @@ namespace Werewolf_Server.GameFiles.Modes
                     case "Tough Guy":
                         roles.Add(new ToughGuy());
                         break;
+                    case "Mystic Seer":
+                        roles.Add(new MysticSeer());
+                        break;
                 }
             }
 

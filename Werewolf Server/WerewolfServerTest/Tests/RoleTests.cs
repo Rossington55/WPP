@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Werewolf_Server;
+using Werewolf_Server.GameFiles.Roles.Active;
 
 namespace WerewolfServerTest.Tests
 {
@@ -320,6 +321,25 @@ namespace WerewolfServerTest.Tests
             game.NightInit();
             game.FinishNight();
             toughGuy.alive.Should().BeFalse();
+        }
+
+        [Fact]
+        public void MysticSeer_Submit()
+        {
+            Role testRole = new ApprenticeSeer();
+            //Test with the apprentice seer i guess
+            InitGameForNight(2, "Custom;Mystic Seer;Apprentice Seer");
+            Player mysticSeer = game.GetPlayerByRole("Mystic Seer");
+            Player aprenticeSeer = game.GetPlayerByRole("Apprentice Seer");
+
+            SetServerMessage(mysticSeer.name,aprenticeSeer.name);
+            var result = game.Update(serverMessage);
+            if (!GetNightMessage(result)) { return; }
+
+            //First message is the name
+            nightInfoMessage.data[0].Should().Contain(testRole.name);
+            //Second message is the description
+            nightInfoMessage.data[1].Should().Contain(testRole.description);
 
         }
     }
