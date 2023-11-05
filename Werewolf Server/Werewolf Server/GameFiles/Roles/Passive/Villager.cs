@@ -1,4 +1,4 @@
-﻿namespace Werewolf_Server
+﻿namespace Werewolf_Server.GameFiles.Roles.Passive
 {
     public class Villager : Role
     {
@@ -6,7 +6,7 @@
         public Villager()
         {
             name = "Villager";
-            description = "Find the werewolves";
+            description = "Find the werewolves and eliminate them";
             nightDescription = "Time for a calm and 'safe' rest";
 
             team = Team.Villager;
@@ -15,6 +15,6 @@
         }
 
 
-        public override string NightTask(Message message, List<Player> players) { return ""; }
+        public override List<string> NightTask(Message message, List<Player> players) { return new List<string>(); }
     }
 }

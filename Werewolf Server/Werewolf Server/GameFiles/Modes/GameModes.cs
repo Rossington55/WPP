@@ -21,6 +21,14 @@ namespace Werewolf_Server.GameFiles.Modes
                 //Select a random mode that matches player count
                 currentMode = getRandomMode(playerCount);
             }
+            //Add roles as custom
+            else if (modeName.Contains("Custom"))
+            {
+                List<string> roleNames = modeName.Split(";").ToList();
+                roleNames.RemoveAt(0);//Remove the word 'custom'
+                currentMode = new Mode();
+                currentMode.roleNames = roleNames;
+            }
             else
             {
                 //Find the mode by name

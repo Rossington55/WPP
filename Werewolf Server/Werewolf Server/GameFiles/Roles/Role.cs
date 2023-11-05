@@ -10,8 +10,9 @@
         public bool hasNightTask;
         public bool canMultiClick;
 
+
         //Return info (e.g. seer), otherwise return empty
-        public abstract string NightTask(Message message, List<Player> currentPlayers);
+        public abstract List<string> NightTask(Message message, List<Player> currentPlayers);
 
 
     }

@@ -376,7 +376,7 @@ namespace WerewolfServerTest.Tests
             //Init the game
             int playerCount = 3;
             List<Connection> players = CreatePlayers(playerCount);
-            game.Start(players, "DoubleTrouble");
+            game.Start(players, "Custom;Werewolf;Werewolf;Villager");
 
             var result = game.CheckEndgame(false);
             result.Should().Be(Team.Werewolf);

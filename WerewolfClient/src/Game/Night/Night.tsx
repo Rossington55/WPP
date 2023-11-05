@@ -105,7 +105,7 @@ export default function Night(props: Props) {
         setPlayers(newPlayers)
     }
 
-    function handleReady() {
+    function handleSubmit() {
         //Create list of selected player names
         let selectedPlayerNames: Array<string> = []
         const selectedPlayers = players.filter(player => player.selectedByMe)
@@ -182,7 +182,7 @@ export default function Night(props: Props) {
                         <Button
                             disabled={!canBeReady()}
                             color='blue'
-                            onClick={handleReady}
+                            onClick={handleSubmit}
                         >
                             Submit
                         </Button>

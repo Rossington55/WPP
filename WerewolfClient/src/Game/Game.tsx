@@ -64,6 +64,9 @@ export default function Game() {
             case CommandClient.Murdered:
                 setDead(true)
                 break
+            case CommandClient.Left:
+                sessionStorage.removeItem("name")
+                window.location.reload()
 
 
         }
@@ -158,7 +161,7 @@ export default function Game() {
                             color="green"
                             onClick={() => socket.send({
                                 commandServer: CommandServer.Start,
-                                subCommand: "AllSeer"//FOR DEV ONLY
+                                subCommand: "DoubleTrouble"//FOR DEV ONLY
                             })}
                         >
                             Start Game

@@ -97,6 +97,11 @@ namespace Werewolf_Server
             if (existingPlayerId != -1)
             {
                 //Player already exists, update socket
+                //Kick out the old socket
+                _connections[existingPlayerId].Broadcast(new Message(
+               CommandClient.Left
+                ));
+
                 _connections[existingPlayerId].socket = ws;
                 conn = _connections[existingPlayerId];
             }
@@ -108,12 +113,12 @@ namespace Werewolf_Server
             }
 
             //Refresh player list (when not in play)
-            if(_game == null || _game.state == State.Lobby)
+            if (_game == null || _game.state == State.Lobby)
             {
-            BroadcastAll(new Message(
-                CommandClient.PlayerList,
-                GetPlayerList()
-                ));
+                BroadcastAll(new Message(
+                    CommandClient.PlayerList,
+                    GetPlayerList()
+                    ));
             }
 
             //Confirm success with latest connection
@@ -165,7 +170,7 @@ namespace Werewolf_Server
 
                 if (conn != null)
                 {
-                Thread.Sleep(50);
+                    Thread.Sleep(50);
                     conn.Broadcast(message);
                 }
 

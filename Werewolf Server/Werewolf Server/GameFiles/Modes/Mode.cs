@@ -1,4 +1,8 @@
-﻿namespace Werewolf_Server.GameFiles.Modes
+﻿using Werewolf_Server.GameFiles.Roles.Active;
+using Werewolf_Server.GameFiles.Roles.Passive;
+using Werewolf_Server.GameFiles.Roles.Werewolf;
+
+namespace Werewolf_Server.GameFiles.Modes
 {
     public class Mode
     {
@@ -26,6 +30,21 @@
                         break;
                     case "ApprenticeSeer":
                         roles.Add(new ApprenticeSeer());
+                        break;
+                    case "Witch":
+                        roles.Add(new Witch());
+                        break;
+                    case "Mason":
+                        roles.Add(new Mason());
+                        break;
+                    case "Revealer":
+                        roles.Add(new Revealer());
+                        break;
+                    case "Lycan":
+                        roles.Add(new Lycan());
+                        break;
+                    case "Priest":
+                        roles.Add(new Priest());
                         break;
                 }
             }

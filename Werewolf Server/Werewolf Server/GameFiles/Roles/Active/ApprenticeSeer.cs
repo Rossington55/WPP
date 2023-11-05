@@ -1,33 +1,36 @@
-﻿namespace Werewolf_Server
+﻿namespace Werewolf_Server.GameFiles.Roles.Active
 {
     public class ApprenticeSeer : Role
     {
-        
+
         public ApprenticeSeer()
         {
             name = "Apprentice Seer";
             description = "Become the Seer if they are eliminated";
-            nightDescription = "Find if someone is a werewolf";
-            team = Team.Villager ;
+            nightDescription = "Choose a player to learn if they're a Werewolf";
+            team = Team.Villager;
             hasNightTask = false;//Changes to true when seer dies
             canMultiClick = false;
         }
 
         //Confirm if selected player is a werewolf.
-        public override string NightTask(Message message, List<Player> alivePlayers) {
-
+        public override List<string> NightTask(Message message, List<Player> alivePlayers)
+        {
+            List<string> result = new List<string>();
             Player? selectedPlayer = alivePlayers.Find(player => player.name == message.data[0]);
-            if (selectedPlayer == null) { return ""; }
+            if (selectedPlayer == null) { return result; }
 
             bool isWerewolf = selectedPlayer.role.team == Team.Werewolf;
             if (isWerewolf)
             {
-                return "This player IS a Werewolf";
+                result.Add("This player IS a Werewolf");
             }
             else
             {
-                return "This player is NOT a Werewolf";
+                result.Add("This player is NOT a Werewolf");
             }
+
+            return result;
         }
     }
 }

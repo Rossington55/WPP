@@ -8,20 +8,6 @@
     "name": "Mafia",
     "minPlayerCount": 3,
     "roleNames": [ "Werewolf" ]
-  },
-  {
-    "name": "DoubleTrouble",
-    "minPlayerCount": 3,
-    "roleNames": [ "Werewolf","Werewolf" ]
-  },
-  {
-    "name": "SimpleSeer",
-    "minPlayerCount": 3,
-    "roleNames":  ["Werewolf","Seer","Villager"]
-  },
-  {
-    "name": "AllSeer",
-    "minPlayerCount": 4,
-    "roleNames":  ["Werewolf","Seer","ApprenticeSeer","Villager"]
   }
+
 ]

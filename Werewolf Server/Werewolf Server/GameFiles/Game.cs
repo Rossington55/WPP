@@ -195,6 +195,12 @@ namespace Werewolf_Server
                 {
                     player.ready = true;
                 }
+
+                //Mark down each death timer
+                if(player.deathTimer > 0)
+                {
+                    player.deathTimer--;
+                }
             }
         }
 
@@ -204,7 +210,7 @@ namespace Werewolf_Server
             if (player == null) { return; }
             if (!player.role.hasNightTask) { return; }
 
-            string result = player.role.NightTask(message, AlivePlayers);
+            List<string> result = player.role.NightTask(message, AlivePlayers);
 
             //Player successfully submitted
             player.ready = true;
@@ -279,7 +285,7 @@ namespace Werewolf_Server
             //Reset all players
             foreach (Player player in _players)
             {
-                player.ready = false;
+                player.Reset();
             }
 
         }
@@ -300,18 +306,25 @@ namespace Werewolf_Server
             }
         }
 
-        private void FinishNight()
+        public void FinishNight()
         {
 
             //Sanity check, find the player most bitten by werewolves
-            Player murderedPlayer = null;
+            Player? murderedPlayer = null;
             int mostVotes = 0;
             foreach (Player player in AlivePlayers)
             {
+                //Count werewolves attacking
                 if (mostVotes < player.werewolvesAttacking)
                 {
                     mostVotes = player.werewolvesAttacking;
                     murderedPlayer = player;
+                }
+
+                //Check if player is due to die anyway
+                if(player.deathTimer == 0)
+                {
+                    MurderPlayer(player);
                 }
             }
 
@@ -326,6 +339,9 @@ namespace Werewolf_Server
 
         private void MurderPlayer(Player murderedPlayer)
         {
+            //Dont kill invincible players
+            if (murderedPlayer.invincible) { return; }
+
             murderedPlayer.alive = false;
             _messagesOut.Add(new Message(murderedPlayer.name, CommandClient.Murdered));
 

@@ -1,5 +1,4 @@
-﻿
-namespace Werewolf_Server
+﻿namespace Werewolf_Server
 {
     public class Player
     {
@@ -11,6 +10,8 @@ namespace Werewolf_Server
         public int lockedVotes;
         public int werewolvesAttacking;//How many werewolves are currently attacking me
         public List<string> votedBy;
+        public bool invincible;
+        public int deathTimer;//If above 0 counts down at the start of each night. If 0 dies tonight. < 0 has no timer
 
         public Player(string name, Role role)
         {
@@ -21,6 +22,8 @@ namespace Werewolf_Server
             this.ready = false;
             this.name = name;
             this.votedBy = new List<string>();
+            this.invincible = false;
+            this.deathTimer = -1;
             werewolvesAttacking = 0;
         }
         public List<string> RoleDetails
@@ -36,6 +39,15 @@ namespace Werewolf_Server
                 role.canMultiClick.ToString()   //5
                 };
             }
+        }
+
+        public void Reset()
+        {
+            this.votes = 0;
+            this.lockedVotes = 0;
+            this.werewolvesAttacking = 0;
+            this.votedBy.Clear();
+            this.invincible = false;
         }
     }
 }
