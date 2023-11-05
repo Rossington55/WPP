@@ -1,17 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "/+ZP0AIdohOgvU1jpRhzD9VxSro9WOPID1dW2VLCDXGzoumpuzMZ+voXPFlBPcEe1IKP+Mj3CXRPg+6G0Zb6UA==",
+  "dgSpecHash": "ugTEeHL5d0Mv57TBZNkjx3HIrWYQi+z0BFlM2g0t7eu2MuUr0HXi2cz1UYt9yCGlgOqU5i/hOSdjO04tKwDuXQ==",
   "success": true,
-  "projectFilePath": "C:\\WIP\\Werewolf Server\\Werewolf Server\\Werewolf Server.csproj",
+  "projectFilePath": "C:\\Users\\ari\\Desktop\\Fun\\WPP\\Werewolf Server\\Werewolf Server\\Werewolf Server.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\harri\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512"
+    "C:\\Users\\ari\\.nuget\\packages\\fluentassertions\\6.12.0\\fluentassertions.6.12.0.nupkg.sha512",
+    "C:\\Users\\ari\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
+    "C:\\Users\\ari\\.nuget\\packages\\system.configuration.configurationmanager\\4.4.0\\system.configuration.configurationmanager.4.4.0.nupkg.sha512",
+    "C:\\Users\\ari\\.nuget\\packages\\system.security.cryptography.protecteddata\\4.4.0\\system.security.cryptography.protecteddata.4.4.0.nupkg.sha512"
   ],
-  "logs": [
-    {
-      "code": "NU1803",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "You are running the 'restore' operation with an 'HTTP' source, 'http://teamcity.monogame.net/guestAuth/app/nuget/feed/_Root/default/v3/index.json'. Non-HTTPS access will be removed in a future version. Consider migrating to an 'HTTPS' source."
-    }
-  ]
+  "logs": []
 }

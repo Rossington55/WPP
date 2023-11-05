@@ -31,12 +31,13 @@
             get
             {
                 return new List<string>() {
-                    role.name,                  //0
-                    role.description,           //1
-                    role.team.ToString(),       //2
-                    role.nightDescription,      //3
-                role.hasNightTask.ToString(),   //4
-                role.canMultiClick.ToString()   //5
+                    role.name,                      // 0
+                    role.description,               // 1
+                    role.team.ToString(),           // 2
+                    role.nightDescription,          // 3
+                    role.hasNightTask.ToString(),   // 4
+                    role.canMultiClick.ToString(),  // 5
+                    role.canSelectLast.ToString()   // 6
                 };
             }
         }

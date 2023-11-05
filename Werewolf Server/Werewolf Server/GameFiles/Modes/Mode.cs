@@ -52,6 +52,9 @@ namespace Werewolf_Server.GameFiles.Modes
                     case "Mystic Seer":
                         roles.Add(new MysticSeer());
                         break;
+                    case "Bodyguard":
+                        roles.Add(new Bodyguard());
+                        break;
                 }
             }
 

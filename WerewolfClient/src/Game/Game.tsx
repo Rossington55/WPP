@@ -25,6 +25,7 @@ export interface Role {
     team: Team,
     hasNightTask: boolean,
     canMultiClick: boolean,
+    canSelectLast: boolean,
 }
 
 export default function Game() {
@@ -76,6 +77,7 @@ export default function Game() {
     function updateState() {
         switch (socket.recieved.subCommand) {
             case "Lobby":
+                sessionStorage.removeItem("lastSelectedPlayers")
                 setGameState(GameState.Lobby)
                 break
             case "Day":
@@ -107,6 +109,8 @@ export default function Game() {
             nightDescription: roleDetails[3],
             hasNightTask: JSON.parse(roleDetails[4].toLowerCase()),
             canMultiClick: JSON.parse(roleDetails[5].toLowerCase()),
+            canSelectLast: JSON.parse(roleDetails[6].toLowerCase())
+            
         }
         setRole(role)
     }
@@ -156,12 +160,12 @@ export default function Game() {
                 </Button>
                 :
                 <article className='gap-2'>
-                    {gameState === GameState.Lobby &&
+                    { // gameState === GameState.Lobby &&
                         <Button
                             color="green"
                             onClick={() => socket.send({
                                 commandServer: CommandServer.Start,
-                                subCommand: "DoubleTrouble"//FOR DEV ONLY
+                                subCommand: "Custom;Werewolf;Bodyguard;Villager"//FOR DEV ONLY
                             })}
                         >
                             Start Game

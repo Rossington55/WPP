@@ -9,7 +9,7 @@
         public Team team;
         public bool hasNightTask;
         public bool canMultiClick;
-
+        public bool canSelectLast = true;
 
         //Return info (e.g. seer), otherwise return empty
         public abstract List<string> NightTask(Message message, List<Player> currentPlayers);

@@ -1,23 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\WIP\\Werewolf Server\\WerewolfServerTest\\WerewolfServerTest.csproj": {}
+    "C:\\Users\\ari\\Desktop\\Fun\\WPP\\Werewolf Server\\WerewolfServerTest\\WerewolfServerTest.csproj": {}
   },
   "projects": {
-    "C:\\WIP\\Werewolf Server\\Werewolf Server\\Werewolf Server.csproj": {
+    "C:\\Users\\ari\\Desktop\\Fun\\WPP\\Werewolf Server\\Werewolf Server\\Werewolf Server.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\WIP\\Werewolf Server\\Werewolf Server\\Werewolf Server.csproj",
+        "projectUniqueName": "C:\\Users\\ari\\Desktop\\Fun\\WPP\\Werewolf Server\\Werewolf Server\\Werewolf Server.csproj",
         "projectName": "Werewolf Server",
-        "projectPath": "C:\\WIP\\Werewolf Server\\Werewolf Server\\Werewolf Server.csproj",
-        "packagesPath": "C:\\Users\\harri\\.nuget\\packages\\",
-        "outputPath": "C:\\WIP\\Werewolf Server\\Werewolf Server\\obj\\",
+        "projectPath": "C:\\Users\\ari\\Desktop\\Fun\\WPP\\Werewolf Server\\Werewolf Server\\Werewolf Server.csproj",
+        "packagesPath": "C:\\Users\\ari\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\ari\\Desktop\\Fun\\WPP\\Werewolf Server\\Werewolf Server\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
-        ],
         "configFilePaths": [
-          "C:\\Users\\harri\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\ari\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -25,7 +22,6 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "http://teamcity.monogame.net/guestAuth/app/nuget/feed/_Root/default/v3/index.json": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -44,6 +40,10 @@
         "net7.0": {
           "targetAlias": "net7.0",
           "dependencies": {
+            "FluentAssertions": {
+              "target": "Package",
+              "version": "[6.12.0, )"
+            },
             "Newtonsoft.Json": {
               "target": "Package",
               "version": "[13.0.3, )"
@@ -68,24 +68,21 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.401\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.402\\RuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\WIP\\Werewolf Server\\WerewolfServerTest\\WerewolfServerTest.csproj": {
+    "C:\\Users\\ari\\Desktop\\Fun\\WPP\\Werewolf Server\\WerewolfServerTest\\WerewolfServerTest.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\WIP\\Werewolf Server\\WerewolfServerTest\\WerewolfServerTest.csproj",
+        "projectUniqueName": "C:\\Users\\ari\\Desktop\\Fun\\WPP\\Werewolf Server\\WerewolfServerTest\\WerewolfServerTest.csproj",
         "projectName": "WerewolfServerTest",
-        "projectPath": "C:\\WIP\\Werewolf Server\\WerewolfServerTest\\WerewolfServerTest.csproj",
-        "packagesPath": "C:\\Users\\harri\\.nuget\\packages\\",
-        "outputPath": "C:\\WIP\\Werewolf Server\\WerewolfServerTest\\obj\\",
+        "projectPath": "C:\\Users\\ari\\Desktop\\Fun\\WPP\\Werewolf Server\\WerewolfServerTest\\WerewolfServerTest.csproj",
+        "packagesPath": "C:\\Users\\ari\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\ari\\Desktop\\Fun\\WPP\\Werewolf Server\\WerewolfServerTest\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
-        ],
         "configFilePaths": [
-          "C:\\Users\\harri\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\ari\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -93,15 +90,14 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "http://teamcity.monogame.net/guestAuth/app/nuget/feed/_Root/default/v3/index.json": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net7.0": {
             "targetAlias": "net7.0",
             "projectReferences": {
-              "C:\\WIP\\Werewolf Server\\Werewolf Server\\Werewolf Server.csproj": {
-                "projectPath": "C:\\WIP\\Werewolf Server\\Werewolf Server\\Werewolf Server.csproj"
+              "C:\\Users\\ari\\Desktop\\Fun\\WPP\\Werewolf Server\\Werewolf Server\\Werewolf Server.csproj": {
+                "projectPath": "C:\\Users\\ari\\Desktop\\Fun\\WPP\\Werewolf Server\\Werewolf Server\\Werewolf Server.csproj"
               }
             }
           }
@@ -157,7 +153,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.401\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.402\\RuntimeIdentifierGraph.json"
         }
       }
     }
