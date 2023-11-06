@@ -31,5 +31,23 @@ namespace WerewolfServerTest.Tests
             toughGuy.alive.Should().BeFalse();
         }
 
+        [Fact]
+        public void Cursed()
+        {
+            InitGameForNight(1, "Custom;Cursed");
+            Player cursed = game.GetPlayerByRole("Cursed");
+
+            //Starts cursed
+            cursed.role.name.Should().Be("Cursed");
+            cursed.role.team.Should().Be(Team.Villager);
+
+            //Bite them
+            cursed.werewolvesAttacking++;
+            game.FinishNight();
+            cursed.alive.Should().BeTrue();
+            cursed.role.team.Should().Be(Team.Werewolf);
+
+        }
+
     }
 }

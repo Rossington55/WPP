@@ -61,6 +61,9 @@ namespace Werewolf_Server.GameFiles.Modes
                     case "Tough Guy":
                         roles.Add(new ToughGuy());
                         break;
+                    case "Cursed":
+                        roles.Add(new Cursed());
+                        break;
                     case "Lycan":
                         roles.Add(new Lycan());
                         break;
