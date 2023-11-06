@@ -12,28 +12,28 @@ namespace WerewolfServerTest.Tests
 {
     public class RoleTests
     {
-        private readonly Game game;
-        private Message serverMessage;
-        private Message nightInfoMessage;
+        public readonly Game game;
+        public Message serverMessage;
+        public Message nightInfoMessage;
         public RoleTests()
         {
             game = new Game();
             serverMessage = new Message("", CommandServer.NightSubmit, "");
         }
 
-        private void SetServerMessage(string playerName, string data)
+        public void SetServerMessage(string playerName, string data)
         {
             serverMessage.player = playerName;
             serverMessage.data[0] = data;
         }
-        private void SetServerMessage(string playerName, string data, string subCommand)
+        public void SetServerMessage(string playerName, string data, string subCommand)
         {
             serverMessage.player = playerName;
             serverMessage.data[0] = data;
             serverMessage.subCommand = subCommand;
         }
 
-        private List<Connection> CreatePlayers(int playerCount)
+        public List<Connection> CreatePlayers(int playerCount)
         {
             List<Connection> connections = new List<Connection>();
             for (int i = 0; i < playerCount; i++)
@@ -47,7 +47,7 @@ namespace WerewolfServerTest.Tests
             return connections;
         }
 
-        private bool GetNightMessage(List<Message> result)
+        public bool GetNightMessage(List<Message> result)
         {
             nightInfoMessage = result.Find(msg => msg.commandClient == CommandClient.Submitted);
             nightInfoMessage.Should().NotBeNull();
@@ -55,7 +55,7 @@ namespace WerewolfServerTest.Tests
             return nightInfoMessage != null;
         }
 
-        private void InitGameForNight(int playerCount, string gameMode)
+        public void InitGameForNight(int playerCount, string gameMode)
         {
             List<Connection> players = CreatePlayers(playerCount);
             game.Start(players, gameMode);
@@ -76,151 +76,7 @@ namespace WerewolfServerTest.Tests
             result.Should().HaveCount(0);
         }
 
-        [Fact]
-        public void Werewolf_Submit()
-        {
-            InitGameForNight(3, "Custom;Villager;Villager;Werewolf");
-            Player werewolf = game.GetPlayerByRole("Werewolf");
-            werewolf.Should().NotBeNull();
 
-            Message biteMessage = new Message(werewolf.name, CommandServer.WerewolfSelectPlayer, "0");
-            biteMessage.subCommand = "select";
-            SetServerMessage(werewolf.name, "");
-
-            //Bite a playerd
-            game.Update(biteMessage);
-
-
-            var result = game.Update(serverMessage);
-
-            //Submitted, update host, update all players of day, murdered
-            result.Should().HaveCountGreaterThan(3);
-            if (result.Count == 0) { return; }
-
-            result[0].commandClient.Should().Be(CommandClient.Submitted);
-
-            //Only waiting for me, should all be ready to go to day
-            Message? dayMessage = result.Find(msg => msg.commandClient == CommandClient.State);
-            dayMessage.Should().NotBeNull();
-            dayMessage.data[0].Should().Be(State.Day.ToString());
-
-            //Someone was bitten
-            //and that person is correct
-            Message murderMessage = result.Find(message => message.commandClient == CommandClient.Murdered);
-            murderMessage.Should().NotBeNull();
-            murderMessage.player.Should().Be("0");
-        }
-
-        [Theory]
-        [InlineData("Werewolf", true)]
-        [InlineData("Lycan", true)]
-        [InlineData("Villager", false)]
-        [InlineData("Seer", false)]
-        public void Seer_Submit(string selectedRole, bool expectedWerewolf)
-        {
-            InitGameForNight(4, "Custom;Seer;Werewolf;Villager;Lycan");
-            Player seer = game.GetPlayerByRole("Seer");
-            Player selectedPlayer = game.GetPlayerByRole(selectedRole);
-            seer.Should().NotBeNull();
-
-            SetServerMessage(seer.name, selectedPlayer.name);
-            var result = game.Update(serverMessage);
-
-            if (!GetNightMessage(result)) { return; }
-            if (expectedWerewolf)
-            {
-                nightInfoMessage.data[0].Should().Contain("IS");
-            }
-            else
-            {
-                nightInfoMessage.data[0].Should().Contain("NOT");
-            }
-        }
-
-        [Fact]
-        public void ApprenticeSeer_Submit()
-        {
-            InitGameForNight(4, "Custom;Seer;Apprentice Seer;Werewolf;Villager");
-            Player seer = game.GetPlayerByRole("Seer");
-            Player apprentice = game.GetPlayerByRole("Apprentice Seer");
-            Player werewolf = game.GetPlayerByRole("Werewolf");
-
-
-            //Submit while Seer is still alive
-            SetServerMessage(apprentice.name, "0");
-
-            var result = game.Update(serverMessage);
-
-            //Kill the Seer
-            //Ready up everyone to finish the night
-            foreach (Player player in game.AlivePlayers)
-            {
-                player.ready = true;
-            }
-            seer.werewolvesAttacking++;
-            SetServerMessage(werewolf.name, seer.name);
-            game.Update(serverMessage);
-
-            //Submit while Seer is still dead
-            SetServerMessage(apprentice.name, werewolf.name);
-            result = game.Update(serverMessage);
-            if (!GetNightMessage(result)) { return; }
-            nightInfoMessage.data[0].Should().Contain("Werewolf");
-
-        }
-
-        [Theory]
-        [InlineData("Health")]
-        [InlineData("Poison")]
-        public void Witch_Submit(string potion)
-        {
-            InitGameForNight(2, "Custom;Witch;Villager");
-            Player witch = game.GetPlayerByRole("Witch");
-            Player labRat = game.GetPlayerByRole("Villager");
-
-            for (int i = 0; i < 2; i++)
-            {
-                if (potion == "Health")
-                {
-                    //Bite the lab rat
-                    labRat.werewolvesAttacking++;
-                }
-
-                SetServerMessage(witch.name, labRat.name, potion);
-                game.Update(serverMessage);
-
-                game.FinishNight();
-
-                if (potion == "Health")
-                {
-                    if (i == 0)
-                    {
-                        labRat.alive.Should().BeTrue();
-                    }
-                    else//Dont work on second use
-                    {
-                        labRat.alive.Should().BeFalse();
-
-                    }
-                }
-                else if (potion == "Poison")
-                {
-                    if (i == 0)
-                    {
-                        labRat.alive.Should().BeFalse();
-                    }
-                    else//Dont work on second use
-                    {
-                        labRat.alive.Should().BeTrue();
-
-                    }
-                }
-
-                //Revive the rat
-                labRat.alive = true;
-                labRat.deathTimer = -1;
-            }
-        }
 
         [Theory]
         [InlineData(1)]
@@ -246,157 +102,7 @@ namespace WerewolfServerTest.Tests
 
         }
 
-        [Theory]
-        [InlineData("Werewolf", true)]
-        [InlineData("Villager", false)]
-        [InlineData("Seer", false)]
-        public void Revealer_Submit(string findRole, bool theyDie)
-        {
-            InitGameForNight(4, "Custom;Revealer;Werewolf;Villager;Seer");
-            Player revealer = game.GetPlayerByRole("Revealer");
-            Player selectedPlayer = game.GetPlayerByRole(findRole);
-            SetServerMessage(revealer.name, selectedPlayer.name);
 
 
-            game.Update(serverMessage);
-            game.FinishNight();
-
-            if (theyDie)
-            {
-                revealer.alive.Should().BeTrue();
-                selectedPlayer.alive.Should().BeFalse();
-            }
-            else
-            {
-                revealer.alive.Should().BeFalse();
-                selectedPlayer.alive.Should().BeTrue();
-            }
-        }
-
-        [Fact]
-        public void Priest_Submit()
-        {
-            InitGameForNight(2, "Custom;Priest;Villager");
-            Player priest = game.GetPlayerByRole("Priest");
-            Player labRat = game.GetPlayerByRole("Villager");
-
-            for (int i = 0; i < 2; i++)
-            {
-                //Bite the lab rat
-                labRat.werewolvesAttacking++;
-
-                SetServerMessage(priest.name, labRat.name);
-                game.Update(serverMessage);
-
-                game.FinishNight();
-
-                if (i == 0)
-                {
-                    labRat.alive.Should().BeTrue();
-                }
-                else//Dont work on second use
-                {
-                    labRat.alive.Should().BeFalse();
-
-                }
-
-                //Revive the rat
-                labRat.alive = true;
-                labRat.deathTimer = -1;
-            }
-        }
-
-        [Fact]
-        public void ToughGuy()
-        {
-            InitGameForNight(1, "Custom;Tough Guy");
-            Player toughGuy = game.GetPlayerByRole("Tough Guy");
-
-            //Dont die first time
-            toughGuy.werewolvesAttacking++;
-            game.FinishNight();
-            toughGuy.alive.Should().BeTrue();
-
-            //Die second night
-            game.NightInit();
-            game.FinishNight();
-            toughGuy.alive.Should().BeFalse();
-        }
-
-        [Fact]
-        public void MysticSeer_Submit()
-        {
-            Role testRole = new ApprenticeSeer();
-            //Test with the apprentice seer i guess
-            InitGameForNight(2, "Custom;Mystic Seer;Apprentice Seer");
-            Player mysticSeer = game.GetPlayerByRole("Mystic Seer");
-            Player aprenticeSeer = game.GetPlayerByRole("Apprentice Seer");
-
-            SetServerMessage(mysticSeer.name,aprenticeSeer.name);
-            var result = game.Update(serverMessage);
-            if (!GetNightMessage(result)) { return; }
-
-            //First message is the name
-            nightInfoMessage.data[0].Should().Contain(testRole.name);
-            //Second message is the description
-            nightInfoMessage.data[1].Should().Contain(testRole.description);
-
-        }
-
-        [Fact]
-        public void Bodyguard_Submit()
-        {
-            InitGameForNight(3, "Custom;Bodyguard;Villager;Seer");
-            Player bodyguard = game.GetPlayerByRole("Bodyguard");
-            Player labRat = game.GetPlayerByRole("Villager");
-            Player seer = game.GetPlayerByRole("Seer");
-
-            for (int i = 0; i < 4; i++)
-            {
-                //Bite the lab rat
-
-                SetServerMessage(bodyguard.name, labRat.name);
-
-                if (i == 2)
-                {
-                    SetServerMessage(bodyguard.name, seer.name);
-                    seer.werewolvesAttacking = 1;
-                    labRat.werewolvesAttacking = 0;
-
-                }
-                else
-                {
-                    seer.werewolvesAttacking = 0;
-                    labRat.werewolvesAttacking = 1;
-                }
-                game.Update(serverMessage);
-
-                game.FinishNight();
-
-                switch (i)
-                {
-
-                    case 0: 
-                        labRat.alive.Should().BeTrue();
-                        break;
-                    case 1: 
-                        labRat.alive.Should().BeFalse();
-                        break;
-                    case 2:
-                        labRat.alive.Should().BeTrue();
-                        seer.alive.Should().BeTrue();
-                        break;
-                    case 3:
-                        labRat.alive.Should().BeTrue();
-                        seer.alive.Should().BeTrue();
-                        break;
-                }
-
-                //Revive the rat
-                labRat.alive = true;
-                labRat.deathTimer = -1;
-                seer.alive = true;
-            }
-        }
     }
 }

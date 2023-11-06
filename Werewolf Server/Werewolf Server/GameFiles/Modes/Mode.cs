@@ -55,6 +55,9 @@ namespace Werewolf_Server.GameFiles.Modes
                     case "Bodyguard":
                         roles.Add(new Bodyguard());
                         break;
+                    case "Mentalist":
+                        roles.Add(new Mentalist());
+                        break;
                 }
             }
 
