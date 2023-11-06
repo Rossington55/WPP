@@ -71,5 +71,22 @@ namespace WerewolfServerTest.Tests
                 nightInfoMessage.data[0].Should().Contain("NOT");
             }
         }
+
+        [Fact]
+        public void Minion_Submit()
+        {
+            //Populate game with required masons
+            InitGameForNight(4, "Custom;Minion;Werewolf;Sorceress;Villager");
+            Player minion = game.GetPlayerByRole("Minion");
+
+            SetServerMessage(minion.name, "");
+
+            var result = game.Update(serverMessage);
+            if (!GetNightMessage(result)) { return; }
+
+            nightInfoMessage.data.Should().HaveCount(3);//Correct amount of other werewolves
+            nightInfoMessage.data.Should().NotContain(otherMason => otherMason == minion.name);
+
+        }
     }
 }

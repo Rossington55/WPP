@@ -31,6 +31,9 @@ namespace Werewolf_Server.GameFiles.Modes
                     case "Sorceress":
                         roles.Add(new Sorceress());
                         break;
+                    case "Minion":
+                        roles.Add(new Minion());
+                        break;
                     case "Seer":
                         roles.Add(new Seer());
                         break;
