@@ -121,14 +121,14 @@ namespace WerewolfServerTest.Tests
             //Init the game
             int playerCount = 3;
             List<Connection> players = CreatePlayers(playerCount);
-            game.Start(players, "");
+            game.Start(players, "Custom;Werewolf;Werewolf;Sorceress");
 
             var result = game.Update(message);
 
             //There is a result for a valid player
             if (selectedPlayer == "1")
             {
-                result.Should().HaveCountGreaterThan(0);
+                result.Should().HaveCount(playerCount-1);//Shouldnt message sorceress
                 if (result.Count == 0) { return; }
                 //Correct command
                 result[0].commandClient.Should().Be(CommandClient.SelectedPlayerList);

@@ -248,6 +248,8 @@ namespace Werewolf_Server
             //Notify each werewolf of the new selection
             foreach (Player werewolf in Werewolves)
             {
+                if(werewolf.role.name == "Sorceress") { continue; }
+
                 _messagesOut.Add(new Message(
                     werewolf.name,
                     CommandClient.SelectedPlayerList,
