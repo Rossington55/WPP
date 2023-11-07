@@ -1,13 +1,13 @@
 ﻿namespace Werewolf_Server.GameFiles.Roles.Villager
 {
-    public class OldHag : Role
+    public class Spellcaster : Role
     {
         private Player lastSelected;
-        public OldHag()
+        public Spellcaster()
         {
-            name = "Old Hag";
-            description = "Send someone out of the room every day";
-            nightDescription = "Select someone to leave town for the day";
+            name = "Spellcaster";
+            description = "Silence someone every day";
+            nightDescription = "Select someone to cast a spell of muteness";
 
             team = Team.Villager;
             hasNightTask = true;
@@ -24,13 +24,11 @@
             //Cant select last
             if (selectedPlayer == null || selectedPlayer == lastSelected) { return result; }
 
-            selectedPlayer.canVote = false;
-
-            result.data.Add($"{selectedPlayer.name} will be sent out of the room");
+            result.data.Add($"{selectedPlayer.name} will be silenced");
             result.secondaryMessage = new Message(
                 selectedPlayer.name,
                 CommandClient.Alert,
-                new List<string>() { "Shunned by the Old Hag","You must leave the room for the next day"}
+                new List<string>() { "Silenced by the Spellcaster","You must stay completely silent for the next day"}
                 );
 
             lastSelected = selectedPlayer;

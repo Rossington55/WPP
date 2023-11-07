@@ -2,7 +2,7 @@
 {
     public class Bodyguard : Role
     {
-        private Player lastProtected;
+        private Player lastSelected;
 
         public Bodyguard()
         {
@@ -24,10 +24,10 @@
             //Get the selected player if the prayer is used
             Player? selectedPlayer = null;
             selectedPlayer = players.Find(player => player.name == message.data[0]);
-            if (selectedPlayer == null || selectedPlayer == lastProtected) { return result; }
+            if (selectedPlayer == null || selectedPlayer == lastSelected) { return result; }
 
             selectedPlayer.invincible = true;
-            lastProtected = selectedPlayer;
+            lastSelected = selectedPlayer;
 
             result.data.Add("That's some solid protection!");
             result.data.Add($"{selectedPlayer.name} will be protected for tonight.");
