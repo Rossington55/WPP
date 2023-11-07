@@ -19,44 +19,56 @@ namespace Werewolf_Server.GameFiles.Modes
             {
                 switch (roleName)
                 {
-                    case "Werewolf":
-                        roles.Add(new Werewolf());
-                        break;
                     case "Villager":
                         roles.Add(new Villager());
-                        break;
-                    case "Seer":
-                        roles.Add(new Seer());
-                        break;
-                    case "Apprentice Seer":
-                        roles.Add(new ApprenticeSeer());
-                        break;
-                    case "Witch":
-                        roles.Add(new Witch());
                         break;
                     case "Mason":
                         roles.Add(new Mason());
                         break;
-                    case "Revealer":
-                        roles.Add(new Revealer());
+                    case "Werewolf":
+                        roles.Add(new WerewolfRole());
                         break;
-                    case "Lycan":
-                        roles.Add(new Lycan());
+                    case "Sorceress":
+                        roles.Add(new Sorceress());
                         break;
-                    case "Priest":
-                        roles.Add(new Priest());
+                    case "Minion":
+                        roles.Add(new Minion());
                         break;
-                    case "Tough Guy":
-                        roles.Add(new ToughGuy());
+                    case "Seer":
+                        roles.Add(new Seer());
                         break;
                     case "Mystic Seer":
                         roles.Add(new MysticSeer());
                         break;
-                    case "Bodyguard":
-                        roles.Add(new Bodyguard());
+                    case "Apprentice Seer":
+                        roles.Add(new ApprenticeSeer());
                         break;
                     case "Mentalist":
                         roles.Add(new Mentalist());
+                        break;
+                    case "Revealer":
+                        roles.Add(new Revealer());
+                        break;
+                    case "Bodyguard":
+                        roles.Add(new Bodyguard());
+                        break;
+                    case "Priest":
+                        roles.Add(new Priest());
+                        break;
+                    case "Witch":
+                        roles.Add(new Witch());
+                        break;
+                    case "Tough Guy":
+                        roles.Add(new ToughGuy());
+                        break;
+                    case "Cursed":
+                        roles.Add(new Cursed());
+                        break;
+                    case "Drunk":
+                        roles.Add(new Drunk());
+                        break;
+                    case "Lycan":
+                        roles.Add(new Lycan());
                         break;
                 }
             }

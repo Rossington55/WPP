@@ -48,5 +48,45 @@ namespace WerewolfServerTest.Tests
             murderMessage.player.Should().Be("0");
         }
 
+        [Theory]
+        [InlineData("Seer", true)]
+        [InlineData("Villager", false)]
+        [InlineData("Apprentice Seer", false)]
+        public void Sorceress_Submit(string selectedPlayer, bool expectedSeer)
+        {
+            InitGameForNight(3, $"Custom;Sorceress;{selectedPlayer}");
+            Player sorceress = game.GetPlayerByRole("Sorceress");
+            Player labRat = game.GetPlayerByRole(selectedPlayer);
+
+            SetServerMessage(sorceress.name, labRat.name);
+            var result = game.Update(serverMessage);
+            if (!GetNightMessage(result)) { return; }
+
+            if (expectedSeer)
+            {
+                nightInfoMessage.data[0].Should().Contain("IS");
+            }
+            else
+            {
+                nightInfoMessage.data[0].Should().Contain("NOT");
+            }
+        }
+
+        [Fact]
+        public void Minion_Submit()
+        {
+            //Populate game with required masons
+            InitGameForNight(4, "Custom;Minion;Werewolf;Sorceress;Villager");
+            Player minion = game.GetPlayerByRole("Minion");
+
+            SetServerMessage(minion.name, "");
+
+            var result = game.Update(serverMessage);
+            if (!GetNightMessage(result)) { return; }
+
+            nightInfoMessage.data.Should().HaveCount(3);//Correct amount of other werewolves
+            nightInfoMessage.data.Should().NotContain(otherMason => otherMason == minion.name);
+
+        }
     }
 }

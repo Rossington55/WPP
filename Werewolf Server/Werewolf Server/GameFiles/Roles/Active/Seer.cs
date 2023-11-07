@@ -14,9 +14,9 @@
         }
 
         //Confirm if selected player is a werewolf
-        public override List<string> NightTask(Message message, List<Player> alivePlayers)
+        public override NightTaskResult NightTask(Message message, List<Player> alivePlayers)
         {
-            List<string> result = new List<string>();
+            NightTaskResult result = new NightTaskResult();
             Player? selectedPlayer = alivePlayers.Find(player => player.name == message.data[0]);
             if (selectedPlayer == null) { return result; }
 
@@ -25,11 +25,11 @@
 
             if (isWerewolf)
             {
-                result.Add("This player IS a Werewolf");
+                result.data.Add("This player IS a Werewolf");
             }
             else
             {
-                result.Add("This player is NOT a Werewolf");
+                result.data.Add("This player is NOT a Werewolf");
             }
 
             return result;

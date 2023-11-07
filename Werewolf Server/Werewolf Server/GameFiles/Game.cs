@@ -1,6 +1,8 @@
 ﻿
 using Werewolf_Server.GameFiles;
 using Werewolf_Server.GameFiles.Modes;
+using Werewolf_Server.GameFiles.Roles.Passive;
+using Werewolf_Server.GameFiles.Roles.Werewolf;
 
 namespace Werewolf_Server
 {
@@ -210,11 +212,17 @@ namespace Werewolf_Server
             if (player == null) { return; }
             if (!player.role.hasNightTask) { return; }
 
-            List<string> result = player.role.NightTask(message, AlivePlayers);
+            NightTaskResult result = player.role.NightTask(message, AlivePlayers);
+
+            //Secondary message (e.g. Drunk, Spellcaster, Old Hag)
+            if(result.secondaryMessage  != null)
+            {
+                _messagesOut.Add(result.secondaryMessage);
+            }
 
             //Player successfully submitted
             player.ready = true;
-            _messagesOut.Add(new Message(player.name, CommandClient.Submitted, result));
+            _messagesOut.Add(new Message(player.name, CommandClient.Submitted, result.data));
             CheckNightFinished();
         }
 
@@ -248,6 +256,8 @@ namespace Werewolf_Server
             //Notify each werewolf of the new selection
             foreach (Player werewolf in Werewolves)
             {
+                if (werewolf.role.name == "Sorceress" || werewolf.role.name == "Minion") { continue; }
+
                 _messagesOut.Add(new Message(
                     werewolf.name,
                     CommandClient.SelectedPlayerList,
@@ -331,21 +341,37 @@ namespace Werewolf_Server
             //Death by werewolf
             if (murderedPlayer != null)
             {
-                //Countdown tough guy if not already counting
-                if (murderedPlayer.role.name == "Tough Guy" && murderedPlayer.deathTimer < 0)
-                {
-                    murderedPlayer.deathTimer = 1;
-                }
-                else
-                {
-                    MurderPlayer(murderedPlayer);
-                }
+                BitePlayer(murderedPlayer);
             }
 
             ChangeState(State.Day);
             CheckEndgame(true);
         }
 
+        //Specifically kill player by werewolf
+        private void BitePlayer(Player player)
+        {
+            //Countdown tough guy if not already counting
+            if (player.role.name == "Tough Guy" && player.deathTimer < 0)
+            {
+                player.deathTimer = 1;
+            }
+            //Turn cursed into werewolf
+            else if(player.role.name == "Cursed")
+            {
+                player.role = new WerewolfRole();
+                //Alert player of their new role
+                _messagesOut.Add(new Message(
+                    player.name,
+                    CommandClient.Role,
+                    player.RoleDetails
+                    ));
+            }
+            else
+            {
+                MurderPlayer(player);
+            }
+        }
         private void MurderPlayer(Player murderedPlayer)
         {
             //Dont kill invincible players
