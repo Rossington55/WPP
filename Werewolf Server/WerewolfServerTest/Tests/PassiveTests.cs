@@ -10,7 +10,7 @@ using Werewolf_Server.GameFiles.Roles.Active;
 
 namespace WerewolfServerTest.Tests
 {
-    public class Villager: RoleTestFunctions
+    public class Villager : RoleTestFunctions
     {
         [Fact]
         public void Villager_Submit()
@@ -65,5 +65,41 @@ namespace WerewolfServerTest.Tests
             result.Should().Be(Team.Tanner);
         }
 
+        [Theory]
+        [InlineData(2)]//Bulldoze vote
+        [InlineData(3)]//Tie vote
+        public void Mayor(int playerCount)
+        {
+            List<Connection> players = CreatePlayers(playerCount);
+            string gameMode = "Custom;Mayor;Villager";
+            if (playerCount == 3) { gameMode += ";Seer"; }
+            game.Start(players, gameMode);
+            Player mayor = game.GetPlayerByRole("Mayor");
+            Player villager = game.GetPlayerByRole("Villager");
+            Player seer = game.GetPlayerByRole("Seer");
+
+            //Mayor votes for villager - no majority
+            SetServerMessage(mayor.name, villager.name);
+            serverMessage.commandServer = CommandServer.SubmitVote;
+            game.Update(serverMessage);
+
+            if (playerCount == 2)
+            {
+                villager.alive.Should().BeFalse();
+                return;
+            }
+            else
+            {
+                villager.alive.Should().BeTrue();
+            }
+
+            //Villager and seer vote Mayor - tie vote
+            SetServerMessage(villager.name, mayor.name);
+            game.Update(serverMessage);
+            SetServerMessage(seer.name, mayor.name);
+            game.Update(serverMessage);
+            villager.alive.Should().BeTrue();
+            mayor.alive.Should().BeTrue();
+        }
     }
 }

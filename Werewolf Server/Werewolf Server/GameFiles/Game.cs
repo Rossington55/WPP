@@ -464,6 +464,11 @@ namespace Werewolf_Server
 
         private void SubmitVote(Message message)
         {
+            int playerCount = AlivePlayers.Count;
+
+            //Added number to stop mayor bulldozing votes
+            if(AlivePlayers.Find(player => player.role.name == "Mayor") != null) { playerCount++; }
+
             //Confirm Submission and verify not already voted
             Player? me = _players.Find(player => player.name == message.player);
             if (me == null || me.ready || !me.canVote) { return; }
@@ -528,9 +533,9 @@ namespace Werewolf_Server
 
             //No majority
             //and not all players voted
-            if (highestLockedVotes <= Math.Floor(AlivePlayers.Count / 2.0))
+            if (highestLockedVotes <= playerCount / 2.0)
             {
-                if (totalLockedVotes < AlivePlayers.Count)
+                if (totalLockedVotes < playerCount)
                 {
                     return;
                 }
