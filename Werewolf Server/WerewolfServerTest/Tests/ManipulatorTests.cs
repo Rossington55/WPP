@@ -10,7 +10,7 @@ using Werewolf_Server.GameFiles.Roles.Active;
 
 namespace WerewolfServerTest.Tests
 {
-    public class ManipulatorTests: RoleTestFunctions
+    public class ManipulatorTests : RoleTestFunctions
     {
         [Theory]
         [InlineData("Health")]
@@ -94,7 +94,7 @@ namespace WerewolfServerTest.Tests
         [Fact]
         public void Diseased()
         {
-            InitGameForNight(4, "Custom;Werewolf;Diseased");
+            InitGameForNight(2, "Custom;Werewolf;Diseased");
             Player diseased = game.GetPlayerByRole("Diseased");
             Player werewolf = game.GetPlayerByRole("Werewolf");
 
@@ -119,6 +119,48 @@ namespace WerewolfServerTest.Tests
             //Wait a night
             game.FinishNight();
             werewolf.role.hasNightTask.Should().BeTrue();
+        }
+
+        [Theory]
+        [InlineData("Villager", "Seer")]
+        [InlineData("Seer", "Seer")]
+        public void OldHag_Submit(string player1Role, string player2Role)
+        {
+            InitGameForNight(3, "Custom;Old Hag;Villager;Seer");
+            Player oldHag = game.GetPlayerByRole("Old Hag");
+            Player player1 = game.GetPlayerByRole(player1Role);
+            Player player2 = game.GetPlayerByRole(player2Role);
+
+            //First night
+            SetServerMessage(oldHag.name, player1.name);
+            var result = game.Update(serverMessage);
+            result.Should().Contain(message => message.commandClient == CommandClient.Alert);
+            player1.canVote.Should().BeFalse();
+
+            //Check unable to vote
+            SetServerMessage(player1.name, player2.name);
+            serverMessage.commandServer = CommandServer.SelectVote;
+            result = game.Update(serverMessage);
+            result.Should().HaveCount(0);
+            serverMessage.commandServer = CommandServer.SubmitVote;
+            result = game.Update(serverMessage);
+            result.Should().HaveCount(0);
+
+            //Second night
+            SetServerMessage(oldHag.name, player2.name);
+            serverMessage.commandServer = CommandServer.NightSubmit;
+            game.NightInit();
+            result = game.Update(serverMessage);
+            if (player1Role == player2Role)
+            {
+                player2.canVote.Should().BeTrue();
+            }
+            else
+            {
+                result.Should().Contain(message => message.commandClient == CommandClient.Alert);
+                player2.canVote.Should().BeFalse();
+            }
+
         }
     }
 }

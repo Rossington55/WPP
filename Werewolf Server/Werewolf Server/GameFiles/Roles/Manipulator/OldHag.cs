@@ -22,10 +22,7 @@
             if(selectedPlayer == null) { return result; }
 
             //Cant select last
-            if (selectedPlayer.name == lastProtected.name)
-            {
-                return result;
-            }
+            if (selectedPlayer == null || selectedPlayer == lastProtected) { return result; }
 
             selectedPlayer.canVote = false;
 
@@ -36,6 +33,7 @@
                 new List<string>() { "Shunned by the Old Hag","You must leave the room for the next day"}
                 );
 
+            lastProtected = selectedPlayer;
             return result;
         
         }

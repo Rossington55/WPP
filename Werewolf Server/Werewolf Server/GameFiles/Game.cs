@@ -501,10 +501,17 @@ namespace Werewolf_Server
                 {
                     highestLockedVotes = player.lockedVotes;
                     highestVotedPlayer = player;
+                    isTie = false;
                 }
                 else if (player.lockedVotes == highestLockedVotes)
                 {
                     isTie = true;
+                }
+
+                //A bit bodgy but negates any players that cant vote
+                if (!player.canVote)
+                {
+                    totalLockedVotes++;
                 }
             }
 
