@@ -214,7 +214,7 @@ namespace Werewolf_Server
             NightTaskResult result = player.role.NightTask(message, AlivePlayers);
 
             //Secondary message (e.g. Drunk, Spellcaster, Old Hag)
-            if(result.secondaryMessage  != null)
+            if (result.secondaryMessage != null)
             {
                 _messagesOut.Add(result.secondaryMessage);
             }
@@ -356,7 +356,7 @@ namespace Werewolf_Server
                 player.deathTimer = 1;
             }
             //Turn cursed into werewolf
-            else if(player.role.name == "Cursed")
+            else if (player.role.name == "Cursed")
             {
                 player.role = new WerewolfRole();
                 //Alert player of their new role
@@ -512,8 +512,15 @@ namespace Werewolf_Server
         {
             Team winningTeam = Team.None;
 
+            //Check Cult win
+            if (AlivePlayers.Where(player => !player.inCult).ToList().Count == 0)
+            {
+                winningTeam = Team.Cult;
+            }
+
+
             //Check werewolf win
-            if (Werewolves.Count >= AlivePlayers.Count / 2.0)
+            else if (Werewolves.Count >= AlivePlayers.Count / 2.0)
             {
                 winningTeam = Team.Werewolf;
             }
@@ -523,6 +530,7 @@ namespace Werewolf_Server
             {
                 winningTeam = Team.Villager;
             }
+
 
             if (winningTeam != Team.None)
             {

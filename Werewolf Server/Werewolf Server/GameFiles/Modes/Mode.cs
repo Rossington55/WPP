@@ -71,6 +71,9 @@ namespace Werewolf_Server.GameFiles.Modes
                     case "Witch":
                         roles.Add(new Witch());
                         break;
+                    case "Cult Leader":
+                        roles.Add(new CultLeader());
+                        break;
 
                     //Manipulated
                     case "Tough Guy":
