@@ -1,12 +1,12 @@
-﻿namespace Werewolf_Server.GameFiles.Roles.Passive
+﻿namespace Werewolf_Server.GameFiles.Roles.Villager
 {
-    public class Cursed : Role
+    public class VillagerRole : Role
     {
 
-        public Cursed()
+        public VillagerRole()
         {
-            name = "Cursed";
-            description = "Turns into a Werewolf when bitten by the Werewolves";
+            name = "Villager";
+            description = "Find the werewolves and eliminate them";
             nightDescription = "Time for a calm and 'safe' rest";
 
             team = Team.Villager;

@@ -1,4 +1,4 @@
-﻿namespace Werewolf_Server.GameFiles.Roles.Active
+﻿namespace Werewolf_Server.GameFiles.Roles.Seer
 {
     public class Seer : Role
     {
@@ -21,7 +21,7 @@
             if (selectedPlayer == null) { return result; }
 
             bool isWerewolf = selectedPlayer.role.team == Team.Werewolf;//True if werewolf
-            if(selectedPlayer.role.name == "Lycan") {isWerewolf =true;}//Or if Lycan
+            if (selectedPlayer.role.name == "Lycan") { isWerewolf = true; }//Or if Lycan
 
             if (isWerewolf)
             {

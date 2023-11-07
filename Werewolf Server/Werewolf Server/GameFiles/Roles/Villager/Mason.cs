@@ -1,4 +1,4 @@
-﻿namespace Werewolf_Server.GameFiles.Roles.Passive
+﻿namespace Werewolf_Server.GameFiles.Roles.Villager
 {
     public class Mason : Role
     {
@@ -22,8 +22,9 @@
             List<Player> masons = players.FindAll(player => player.role.name == "Mason" && player.name != message.player);
 
             result.data.Add("The other Masons are:");
-            if(masons.Count == 0 ) {
-               result.data[0] = "There are no other Masons";
+            if (masons.Count == 0)
+            {
+                result.data[0] = "There are no other Masons";
             }
 
             foreach (Player mason in masons)

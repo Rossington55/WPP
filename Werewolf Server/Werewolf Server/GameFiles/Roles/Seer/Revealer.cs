@@ -1,4 +1,4 @@
-﻿namespace Werewolf_Server.GameFiles.Roles.Active
+﻿namespace Werewolf_Server.GameFiles.Roles.Seer
 {
     public class Revealer : Role
     {
@@ -24,7 +24,7 @@
             selectedPlayer = players.Find(player => player.name == message.data[0]);
             if (selectedPlayer == null) { return result; }
 
-            if(selectedPlayer.role.team == Team.Werewolf)
+            if (selectedPlayer.role.team == Team.Werewolf)
             {
                 selectedPlayer.deathTimer = 0;
 

@@ -1,7 +1,6 @@
 ﻿
 using Werewolf_Server.GameFiles;
 using Werewolf_Server.GameFiles.Modes;
-using Werewolf_Server.GameFiles.Roles.Passive;
 using Werewolf_Server.GameFiles.Roles.Werewolf;
 
 namespace Werewolf_Server

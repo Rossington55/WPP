@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Werewolf_Server;
 using Werewolf_Server.GameFiles.Roles.Active;
+using Werewolf_Server.GameFiles.Roles.Seer;
 
 namespace WerewolfServerTest.Tests
 {

@@ -1,6 +1,7 @@
-﻿using Werewolf_Server.GameFiles.Roles.Werewolf;
+﻿using Werewolf_Server.GameFiles.Roles.Villager;
+using Werewolf_Server.GameFiles.Roles.Werewolf;
 
-namespace Werewolf_Server.GameFiles.Roles.Passive
+namespace Werewolf_Server.GameFiles.Roles.Manipulated
 {
     public class Drunk : Role
     {
@@ -17,21 +18,23 @@ namespace Werewolf_Server.GameFiles.Roles.Passive
         }
 
 
-        public override NightTaskResult NightTask(Message message, List<Player> players) {
+        public override NightTaskResult NightTask(Message message, List<Player> players)
+        {
             NightTaskResult result = new NightTaskResult();
             Player me = players.Find(player => player.name == message.player);
             nightCount++;
 
-            if(nightCount == 3) {
+            if (nightCount == 3)
+            {
                 Role newRole;
                 Random rand = new Random();
-                if(rand.Next(0,1) == 1)//1 = werewolf, 0 = villager
+                if (rand.Next(0, 1) == 1)//1 = werewolf, 0 = villager
                 {
                     newRole = new WerewolfRole();
                 }
                 else
                 {
-                    newRole = new Villager();
+                    newRole = new VillagerRole();
                 }
 
                 me.role = newRole;
@@ -50,7 +53,7 @@ namespace Werewolf_Server.GameFiles.Roles.Passive
                 result.data.Add("I believe in you");
             }
 
-            return result; 
+            return result;
         }
     }
 }

@@ -1,12 +1,12 @@
-﻿namespace Werewolf_Server.GameFiles.Roles.Passive
+﻿namespace Werewolf_Server.GameFiles.Roles.Manipulated
 {
-    public class ToughGuy : Role
+    public class Cursed : Role
     {
 
-        public ToughGuy()
+        public Cursed()
         {
-            name = "Tough Guy";
-            description = "You take two nights to die by Werewolf";
+            name = "Cursed";
+            description = "Turns into a Werewolf when bitten by the Werewolves";
             nightDescription = "Time for a calm and 'safe' rest";
 
             team = Team.Villager;
