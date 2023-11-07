@@ -478,7 +478,15 @@ namespace Werewolf_Server
             Player? selectedPlayer = _players.Find(player => player.name == message.data[0]);
             if (selectedPlayer == null) { return; }
 
-            selectedPlayer.lockedVotes++;
+            //Mayor votes count twice
+            if (me.role.name == "Mayor")
+            {
+                selectedPlayer.lockedVotes += 2;
+            }
+            else
+            {
+                selectedPlayer.lockedVotes++;
+            }
 
             //Send locked votes list to host
             List<string> lockedVoteList = new List<string>();
@@ -533,7 +541,7 @@ namespace Werewolf_Server
             if (highestVotedPlayer != null && !isTie)
             {
                 //Tanner check
-                if(highestVotedPlayer.role.name == "Tanner") { tannerVoted = true; }
+                if (highestVotedPlayer.role.name == "Tanner") { tannerVoted = true; }
 
                 MurderPlayer(highestVotedPlayer);
             }

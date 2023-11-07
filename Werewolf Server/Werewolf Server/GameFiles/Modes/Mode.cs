@@ -33,6 +33,9 @@ namespace Werewolf_Server.GameFiles.Modes
                     case "Tanner":
                         roles.Add(new Tanner());
                         break;
+                    case "Mayor":
+                        roles.Add(new Mayor());
+                        break;
 
                     //Werewolf
                     case "Werewolf":
