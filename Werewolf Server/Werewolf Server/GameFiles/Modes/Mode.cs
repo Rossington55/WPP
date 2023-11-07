@@ -58,6 +58,9 @@ namespace Werewolf_Server.GameFiles.Modes
                     case "Revealer":
                         roles.Add(new Revealer());
                         break;
+                    case "Aura Seer":
+                        roles.Add(new AuraSeer());
+                        break;
 
                     //Protector
                     case "Bodyguard":
