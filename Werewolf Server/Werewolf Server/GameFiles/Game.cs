@@ -317,6 +317,11 @@ namespace Werewolf_Server
 
         public void FinishNight()
         {
+            //Reset in the case of diseased in play
+            foreach (Player werewolf in Werewolves)
+            {
+                werewolf.role.hasNightTask = true;
+            }
 
             //Sanity check, find the player most bitten by werewolves
             Player? murderedPlayer = null;
@@ -368,6 +373,16 @@ namespace Werewolf_Server
             }
             else
             {
+                //Disable werewolf tasks for next night
+                //will reset at the next FinishNight()
+                if (player.role.name == "Diseased")
+                {
+                    foreach (Player werewolf in Werewolves)
+                    {
+                        werewolf.role.hasNightTask = false;
+                    }
+                }
+
                 MurderPlayer(player);
             }
         }
