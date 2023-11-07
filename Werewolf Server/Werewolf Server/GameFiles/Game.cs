@@ -12,6 +12,7 @@ namespace Werewolf_Server
         private List<Player> _players = new List<Player>();
         private List<Message> _messagesOut;
         private GameModes gameModes;
+        private bool tannerVoted = false;
 
         public List<Player> AlivePlayers
         {
@@ -47,6 +48,8 @@ namespace Werewolf_Server
         {
             state = State.Lobby;
             gameModes = new GameModes();
+            tannerVoted = false;
+            _players = new List<Player>();
         }
 
         public List<Message> Start(List<Connection> users, string gameMode)
@@ -529,6 +532,9 @@ namespace Werewolf_Server
             //At this point the majority is found or all have voted
             if (highestVotedPlayer != null && !isTie)
             {
+                //Tanner check
+                if(highestVotedPlayer.role.name == "Tanner") { tannerVoted = true; }
+
                 MurderPlayer(highestVotedPlayer);
             }
 
@@ -546,6 +552,11 @@ namespace Werewolf_Server
                 winningTeam = Team.Cult;
             }
 
+            //Tanner
+            else if (tannerVoted)
+            {
+                winningTeam = Team.Tanner;
+            }
 
             //Check werewolf win
             else if (Werewolves.Count >= AlivePlayers.Count / 2.0)

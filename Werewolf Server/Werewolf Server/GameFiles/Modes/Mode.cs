@@ -23,12 +23,15 @@ namespace Werewolf_Server.GameFiles.Modes
             {
                 switch (roleName)
                 {
-                    //Villager
+                    //Passive
                     case "Villager":
                         roles.Add(new VillagerRole());
                         break;
                     case "Mason":
                         roles.Add(new Mason());
+                        break;
+                    case "Tanner":
+                        roles.Add(new Tanner());
                         break;
 
                     //Werewolf
