@@ -513,7 +513,8 @@ namespace Werewolf_Server
             Team winningTeam = Team.None;
 
             //Check Cult win
-            if (AlivePlayers.Where(player => !player.inCult).ToList().Count == 0)
+            List<Player> nonCultPlayers = AlivePlayers.Where(player => !player.inCult).ToList();
+            if (nonCultPlayers.Count == 1 && nonCultPlayers[0].role.name == "Cult Leader")
             {
                 winningTeam = Team.Cult;
             }
