@@ -191,7 +191,27 @@ namespace WerewolfServerTest.Tests
             {
                 result.Should().Contain(message => message.commandClient == CommandClient.Alert);
             }
+        }
 
+        [Fact]
+        public void Cupid_Submit()
+        {
+            InitGameForNight(3, "Custom;Cupid;Villager;Seer");
+            Player cupid = game.GetPlayerByRole("Cupid");
+            Player player1 = game.GetPlayerByRole("Villager");
+            Player player2 = game.GetPlayerByRole("Seer");
+
+            //Link player 1 and player 2
+            SetServerMessage(cupid.name, "");
+            serverMessage.data = new List<string>() { player1.name, player2.name };
+            game.Update(serverMessage);
+
+            //Kill player 1
+            player1.werewolvesAttacking++;
+            game.FinishNight();
+
+            player1.alive.Should().BeFalse();
+            player2.alive.Should().BeFalse();
         }
     }
 }

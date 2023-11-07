@@ -92,6 +92,9 @@ namespace Werewolf_Server.GameFiles.Modes
                     case "Spellcaster":
                         roles.Add(new Spellcaster());
                         break;
+                    case "Cupid":
+                        roles.Add(new Cupid());
+                        break;
 
                     //Manipulated
                     case "Tough Guy":
