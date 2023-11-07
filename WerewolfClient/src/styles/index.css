@@ -14,7 +14,19 @@
   .card {
     @apply rounded-md p-5;
   }
+
 }
+
+@font-face {
+  font-family: "wwFont";
+  src: url(../assets/fonts/wwFont.ttf);
+}
+
+@font-face {
+  font-family: "ghost";
+  src: url(../assets/fonts/ghost.otf);
+}
+
 
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
