@@ -50,5 +50,20 @@ namespace WerewolfServerTest.Tests
 
         }
 
+        [Fact]
+        public void Tanner()
+        {
+            List<Connection> players = CreatePlayers(1);
+            game.Start(players, "Custom;Tanner");
+            Player tanner = game.GetPlayerByRole("Tanner");
+
+            SetServerMessage(tanner.name, tanner.name);
+            serverMessage.commandServer = CommandServer.SubmitVote;
+            game.Update(serverMessage);
+            var result = game.CheckEndgame(false);
+
+            result.Should().Be(Team.Tanner);
+        }
+
     }
 }
