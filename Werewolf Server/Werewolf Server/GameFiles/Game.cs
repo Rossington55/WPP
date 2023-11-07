@@ -187,6 +187,8 @@ namespace Werewolf_Server
 
                 player.votes = 0;
                 player.votedBy = new List<string>();
+                player.canVote = true;
+
                 //Unready those with tasks
                 if (player.role.hasNightTask)
                 {
@@ -411,10 +413,13 @@ namespace Werewolf_Server
         private List<string> SelectVote(Message message)
         {
             List<string> voteList = new List<string>();
+            Player? me = AlivePlayers.Find(player => player.name == message.player);
+            if (me == null) { return voteList; }
 
             //Find the selected player
             Player? selectedPlayer = _players.Find(player => player.name == message.data[0]);
             if (selectedPlayer == null) { return voteList; }
+            if (!me.canVote) { return voteList; }
 
             //Select/Deselect
             if (message.subCommand == "select")
@@ -458,7 +463,7 @@ namespace Werewolf_Server
         {
             //Confirm Submission and verify not already voted
             Player? me = _players.Find(player => player.name == message.player);
-            if (me == null || me.ready) { return; }
+            if (me == null || me.ready || !me.canVote) { return; }
             me.ready = true;
 
             _messagesOut.Add(new Message(

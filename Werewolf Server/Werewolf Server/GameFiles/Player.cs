@@ -6,6 +6,7 @@
         public bool alive;
         public bool ready;
         public string name;
+        public bool canVote;
         public int votes;
         public int lockedVotes;
         public int werewolvesAttacking;//How many werewolves are currently attacking me
@@ -26,6 +27,7 @@
             this.invincible = false;
             this.deathTimer = -1;
             this.inCult = false;
+            this.canVote = true;
             werewolvesAttacking = 0;
         }
         public List<string> RoleDetails

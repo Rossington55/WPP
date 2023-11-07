@@ -2,7 +2,8 @@
 
 namespace Werewolf_Server
 {
-    public enum CommandServer { 
+    public enum CommandServer
+    {
         None,                   //0
         Join,                   //1
         Leave,                  //2
@@ -29,7 +30,8 @@ namespace Werewolf_Server
         Submitted,          //8
         Murdered,           //9
         State,              //10
-        EndGame             //11
+        EndGame,            //11
+        Alert               //12 - Used by spellcaster/old hag
     }
 
 
@@ -68,17 +70,20 @@ namespace Werewolf_Server
             this.commandClient = command;
             this.data = new List<string> { data };
         }
-        public Message(string player, CommandClient command)  {
+        public Message(string player, CommandClient command)
+        {
             this.player = player;
             this.commandClient = command;
         }
 
 
-        public Message(CommandClient command, List<string> data) {
+        public Message(CommandClient command, List<string> data)
+        {
             this.commandClient = command;
             this.data = data;
         }
-        public Message(CommandClient command) {
+        public Message(CommandClient command)
+        {
             this.commandClient = command;
         }
 

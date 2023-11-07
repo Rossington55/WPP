@@ -80,6 +80,9 @@ namespace Werewolf_Server.GameFiles.Modes
                     case "Diseased":
                         roles.Add(new Diseased());
                         break;
+                    case "Old Hag":
+                        roles.Add(new OldHag());
+                        break;
 
                     //Manipulated
                     case "Tough Guy":
