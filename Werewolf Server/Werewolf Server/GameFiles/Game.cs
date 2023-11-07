@@ -212,11 +212,17 @@ namespace Werewolf_Server
             if (player == null) { return; }
             if (!player.role.hasNightTask) { return; }
 
-            List<string> result = player.role.NightTask(message, AlivePlayers);
+            NightTaskResult result = player.role.NightTask(message, AlivePlayers);
+
+            //Secondary message (e.g. Drunk, Spellcaster, Old Hag)
+            if(result.secondaryMessage  != null)
+            {
+                _messagesOut.Add(result.secondaryMessage);
+            }
 
             //Player successfully submitted
             player.ready = true;
-            _messagesOut.Add(new Message(player.name, CommandClient.Submitted, result));
+            _messagesOut.Add(new Message(player.name, CommandClient.Submitted, result.data));
             CheckNightFinished();
         }
 
@@ -353,7 +359,7 @@ namespace Werewolf_Server
             //Turn cursed into werewolf
             else if(player.role.name == "Cursed")
             {
-                player.role = new Werewolf();
+                player.role = new WerewolfRole();
                 //Alert player of their new role
                 _messagesOut.Add(new Message(
                     player.name,

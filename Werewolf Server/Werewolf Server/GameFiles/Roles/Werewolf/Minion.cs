@@ -15,22 +15,23 @@
         }
 
 
-        public override List<string> NightTask(Message message, List<Player> players)
+        public override NightTaskResult NightTask(Message message, List<Player> players)
         {
+            NightTaskResult result = new NightTaskResult();
             //Get the other masons (not me)
             List<Player> werewolves = players.FindAll(player => player.role.team == Team.Werewolf && player.name != message.player);
 
-            List<string> output = new List<string>() { "The other Werewolves are:" };
+            result.data.Add("The other Werewolves are:");
             if(werewolves.Count == 0 ) {
-                output[0] = "There are no other Werewolves";
+                result.data[0] = "There are no other Werewolves";
             }
 
             foreach (Player werewolf in werewolves)
             {
-                output.Add(werewolf.name);
+                result.data.Add(werewolf.name);
             }
 
-            return output;
+            return result;
         }
     }
 }

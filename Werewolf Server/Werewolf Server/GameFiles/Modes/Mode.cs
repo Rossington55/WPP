@@ -26,7 +26,7 @@ namespace Werewolf_Server.GameFiles.Modes
                         roles.Add(new Mason());
                         break;
                     case "Werewolf":
-                        roles.Add(new Werewolf());
+                        roles.Add(new WerewolfRole());
                         break;
                     case "Sorceress":
                         roles.Add(new Sorceress());
@@ -63,6 +63,9 @@ namespace Werewolf_Server.GameFiles.Modes
                         break;
                     case "Cursed":
                         roles.Add(new Cursed());
+                        break;
+                    case "Drunk":
+                        roles.Add(new Drunk());
                         break;
                     case "Lycan":
                         roles.Add(new Lycan());

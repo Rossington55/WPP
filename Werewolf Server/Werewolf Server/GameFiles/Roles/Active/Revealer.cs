@@ -13,34 +13,34 @@
         }
 
 
-        public override List<string> NightTask(Message message, List<Player> players)
+        public override NightTaskResult NightTask(Message message, List<Player> players)
         {
-            List<string> output = new List<string>();
-            if (message.subCommand == "None") { return output; }
+            NightTaskResult result = new NightTaskResult();
+            if (message.subCommand == "None") { return result; }
 
             //Get the selected player if a potion is used
             Player? selectedPlayer = null;
 
             selectedPlayer = players.Find(player => player.name == message.data[0]);
-            if (selectedPlayer == null) { return output; }
+            if (selectedPlayer == null) { return result; }
 
             if(selectedPlayer.role.team == Team.Werewolf)
             {
                 selectedPlayer.deathTimer = 0;
 
-                output.Add($"{selectedPlayer.name} IS a Werewolf");
-                output.Add($"They will now die before the sun rises");
+                result.data.Add($"{selectedPlayer.name} IS a Werewolf");
+                result.data.Add($"They will now die before the sun rises");
             }
             else
             {
                 Player me = players.Find(player => player.name == message.player);
                 me.deathTimer = 0;
 
-                output.Add($"{selectedPlayer.name} is NOT a Werewolf");
-                output.Add($"Prepare to die for your treason");
+                result.data.Add($"{selectedPlayer.name} is NOT a Werewolf");
+                result.data.Add($"Prepare to die for your treason");
             }
 
-            return output;
+            return result;
         }
     }
 }

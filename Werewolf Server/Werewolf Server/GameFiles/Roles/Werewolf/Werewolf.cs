@@ -1,9 +1,9 @@
 ﻿namespace Werewolf_Server.GameFiles.Roles.Werewolf
 {
-    public class Werewolf : Role
+    public class WerewolfRole : Role
     {
 
-        public Werewolf()
+        public WerewolfRole()
         {
             name = "Werewolf";
             description = "Kill majority of the town";
@@ -13,9 +13,10 @@
             canMultiClick = false;
         }
 
-        public override List<string> NightTask(Message message, List<Player> alivePlayers)
+        public override NightTaskResult NightTask(Message message, List<Player> alivePlayers)
         {
-            return new List<string>();
+
+            return new NightTaskResult();
         }
     }
 }

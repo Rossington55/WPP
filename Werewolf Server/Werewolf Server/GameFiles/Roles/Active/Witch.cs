@@ -20,14 +20,14 @@
         }
 
 
-        public override List<string> NightTask(Message message, List<Player> players)
+        public override NightTaskResult NightTask(Message message, List<Player> players)
         {
-
+            NightTaskResult result = new NightTaskResult();
             //Get the selected player if a potion is used
             Player? selectedPlayer = null;
-            if (message.subCommand == "None") { return new List<string>(); }
+            if (message.subCommand == "None") { return result; }
             selectedPlayer = players.Find(player => player.name == message.data[0]);
-            if (selectedPlayer == null) { return new List<string>(); }
+            if (selectedPlayer == null) { return result; }
 
             switch (message.subCommand)
             {
@@ -48,9 +48,9 @@
             }
 
             //Remove night task if both potions are used
-            if(!healthPotionUsed && !poisonPotionUsed) { hasNightTask = false; }
+            if (!healthPotionUsed && !poisonPotionUsed) { hasNightTask = false; }
 
-            return new List<string>();
+            return result;
         }
     }
 }

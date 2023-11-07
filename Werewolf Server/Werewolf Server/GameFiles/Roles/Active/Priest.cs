@@ -13,24 +13,24 @@
         }
 
 
-        public override List<string> NightTask(Message message, List<Player> players)
+        public override NightTaskResult NightTask(Message message, List<Player> players)
         {
-            List<string> output = new List<string>();
-            if (message.subCommand == "None") { return output; }
+            NightTaskResult result = new NightTaskResult();
+            if (message.subCommand == "None") { return result; }
 
             //Get the selected player if the prayer is used
             Player? selectedPlayer = null;
             selectedPlayer = players.Find(player => player.name == message.data[0]);
-            if (selectedPlayer == null) { return output; }
+            if (selectedPlayer == null) { return result; }
 
             selectedPlayer.invincible = true;
 
-            output.Add("Your prayers have been answered");
-            output.Add($"{selectedPlayer.name} will be protected for tonight");
+            result.data.Add("Your prayers have been answered");
+            result.data.Add($"{selectedPlayer.name} will be protected for tonight");
 
             hasNightTask = false;
 
-            return output;
+            return result;
         }
     }
 }

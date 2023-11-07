@@ -15,6 +15,6 @@
         }
 
 
-        public override List<string> NightTask(Message message, List<Player> players) { return new List<string>(); }
+        public override NightTaskResult NightTask(Message message, List<Player> players) { return new NightTaskResult(); }
     }
 }

@@ -13,9 +13,9 @@
             canMultiClick = false;
         }
 
-        public override List<string> NightTask(Message message, List<Player> alivePlayers)
+        public override NightTaskResult NightTask(Message message, List<Player> alivePlayers)
         {
-            List<string> result = new List<string>();
+            NightTaskResult result = new NightTaskResult();
             Player? selectedPlayer1 = alivePlayers.Find(player => player.name == message.data[0]);
             Player? selectedPlayer2 = alivePlayers.Find(player => player.name == message.data[1]);
             if (selectedPlayer1 == null) { return result; }
@@ -35,11 +35,11 @@
             //Check if both players are the same team
             if (sameTeam)
             {
-                result.Add("The players ARE on the same team");
+                result.data.Add("The players ARE on the same team");
             }
             else
             {
-                result.Add("The players are NOT on the same team");
+                result.data.Add("The players are NOT on the same team");
             }
 
             return result;

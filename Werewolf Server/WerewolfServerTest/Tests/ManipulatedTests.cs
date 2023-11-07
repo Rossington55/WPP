@@ -10,10 +10,10 @@ using Werewolf_Server.GameFiles.Roles.Active;
 
 namespace WerewolfServerTest.Tests
 {
-    public class ManipulatedTests: RoleTests
+    public class ManipulatedTests : RoleTests
     {
 
-        
+
         [Fact]
         public void ToughGuy()
         {
@@ -46,6 +46,29 @@ namespace WerewolfServerTest.Tests
             game.FinishNight();
             cursed.alive.Should().BeTrue();
             cursed.role.team.Should().Be(Team.Werewolf);
+        }
+
+        [Fact]
+        public void Drunk()
+        {
+            InitGameForNight(1, "Custom;Drunk");
+            Player drunk = game.GetPlayerByRole("Drunk");
+
+            for (int i = 0; i < 3; i++)
+            {
+                SetServerMessage(drunk.name, "");
+                var result = game.Update(serverMessage);
+
+                if (i == 2)//On third night
+                {
+                    result.Should().Contain(message => message.commandClient == CommandClient.Role);
+                    drunk.role.name.Should().NotBe("Drunk");
+                }
+                else
+                {
+                    result.Should().NotContain(message => message.commandClient == CommandClient.Role);
+                }
+            }
 
         }
 
