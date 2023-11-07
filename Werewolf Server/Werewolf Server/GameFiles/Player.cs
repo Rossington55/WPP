@@ -15,6 +15,7 @@
         public int deathTimer;//If above 0 counts down at the start of each night. If 0 dies tonight. < 0 has no timer
         public bool inCult;//Cult Leader shenanigans
         public Player? linkedPlayer;//Cupid 
+        public bool selectedByDoppelganger;
 
         public Player(string name, Role role)
         {
@@ -30,6 +31,7 @@
             this.inCult = false;
             this.canVote = true;
             this.linkedPlayer = null;
+            this.selectedByDoppelganger = false;
             werewolvesAttacking = 0;
         }
         public List<string> RoleDetails

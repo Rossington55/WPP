@@ -109,6 +109,9 @@ namespace Werewolf_Server.GameFiles.Modes
                     case "Lycan":
                         roles.Add(new Lycan());
                         break;
+                    case "Doppelganger":
+                        roles.Add(new Doppelganger());
+                        break;
 
                     //Killer
                     case "Huntress":

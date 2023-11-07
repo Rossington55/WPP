@@ -412,11 +412,23 @@ namespace Werewolf_Server
                 }
             }
 
+            //Activate doppelganger
+            if (murderedPlayer.selectedByDoppelganger)
+            {
+                Player doppelganger = GetPlayerByRole("Doppelganger");
+                if(doppelganger != null)
+                {
+                    doppelganger.role = murderedPlayer.role;
+                    _messagesOut.Add(new Message(doppelganger.name, CommandClient.Role, doppelganger.RoleDetails));
+                }
+            }
+
             //Kill any linked players
             if(murderedPlayer.linkedPlayer != null && murderedPlayer.linkedPlayer.alive)
             {
                 MurderPlayer(murderedPlayer.linkedPlayer);
             }
+
         }
 
         private List<string> SelectVote(Message message)
