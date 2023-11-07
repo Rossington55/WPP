@@ -11,7 +11,7 @@ using Werewolf_Server.GameFiles.Roles.Seer;
 
 namespace WerewolfServerTest.Tests
 {
-    public class SeerTests : RoleTests
+    public class SeerTests : RoleTestFunctions
     {
 
         [Theory]

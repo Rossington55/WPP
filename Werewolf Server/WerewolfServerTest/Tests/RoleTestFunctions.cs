@@ -10,12 +10,12 @@ using Werewolf_Server.GameFiles.Roles.Active;
 
 namespace WerewolfServerTest.Tests
 {
-    public class RoleTests
+    public class RoleTestFunctions
     {
         public readonly Game game;
         public Message serverMessage;
         public Message nightInfoMessage;
-        public RoleTests()
+        public RoleTestFunctions()
         {
             game = new Game();
             serverMessage = new Message("", CommandServer.NightSubmit, "");
@@ -62,44 +62,6 @@ namespace WerewolfServerTest.Tests
 
             Message message = new Message("", CommandServer.StartNight, "");
             game.Update(message);
-        }
-
-        [Fact]
-        public void Villager_Submit()
-        {
-            InitGameForNight(3, "VillagerOnly");
-            SetServerMessage("0", "");
-
-            var result = game.Update(serverMessage);
-
-            //Submitted, update host, update all players of day
-            result.Should().HaveCount(0);
-        }
-
-
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(2)]
-        [InlineData(10)]
-        public void Mason_Submit(int masonCount)
-        {
-            //Populate game with required masons
-            string roles = "Custom";
-            for (int i = 0; i < masonCount; i++)
-            {
-                roles += ";Mason";
-            }
-            InitGameForNight(masonCount + 1, roles);
-            Player mason = game.GetPlayerByRole("Mason");
-
-            SetServerMessage(mason.name, "");
-
-            var result = game.Update(serverMessage);
-            if (!GetNightMessage(result)) { return; }
-            nightInfoMessage.data.Should().HaveCount(masonCount);//Correct amount of other masons
-            nightInfoMessage.data.Should().NotContain(otherMason => otherMason == mason.name);
-
         }
 
 

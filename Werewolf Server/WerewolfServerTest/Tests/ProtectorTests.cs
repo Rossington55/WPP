@@ -10,7 +10,7 @@ using Werewolf_Server.GameFiles.Roles.Active;
 
 namespace WerewolfServerTest.Tests
 {
-    public class ProtectorTests : RoleTests
+    public class ProtectorTests : RoleTestFunctions
     {
         [Fact]
         public void Priest_Submit()
