@@ -23,12 +23,18 @@ namespace Werewolf_Server.GameFiles.Modes
             {
                 switch (roleName)
                 {
-                    //Villager
+                    //Passive
                     case "Villager":
                         roles.Add(new VillagerRole());
                         break;
                     case "Mason":
                         roles.Add(new Mason());
+                        break;
+                    case "Tanner":
+                        roles.Add(new Tanner());
+                        break;
+                    case "Mayor":
+                        roles.Add(new Mayor());
                         break;
 
                     //Werewolf
@@ -77,6 +83,18 @@ namespace Werewolf_Server.GameFiles.Modes
                     case "Cult Leader":
                         roles.Add(new CultLeader());
                         break;
+                    case "Diseased":
+                        roles.Add(new Diseased());
+                        break;
+                    case "Old Hag":
+                        roles.Add(new OldHag());
+                        break;
+                    case "Spellcaster":
+                        roles.Add(new Spellcaster());
+                        break;
+                    case "Cupid":
+                        roles.Add(new Cupid());
+                        break;
 
                     //Manipulated
                     case "Tough Guy":
@@ -90,6 +108,9 @@ namespace Werewolf_Server.GameFiles.Modes
                         break;
                     case "Lycan":
                         roles.Add(new Lycan());
+                        break;
+                    case "Doppelganger":
+                        roles.Add(new Doppelganger());
                         break;
 
                     //Killer

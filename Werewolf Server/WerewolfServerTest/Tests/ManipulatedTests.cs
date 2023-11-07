@@ -69,6 +69,28 @@ namespace WerewolfServerTest.Tests
                     result.Should().NotContain(message => message.commandClient == CommandClient.Role);
                 }
             }
+        }
+
+        [Fact]
+        public void Doppelganger()
+        {
+            InitGameForNight(3, "Custom;Doppelganger;Seer;Villager");
+            Player doppelganger = game.GetPlayerByRole("Doppelganger");
+            Player seer = game.GetPlayerByRole("Seer");
+            Player villager = game.GetPlayerByRole("Villager");
+
+            SetServerMessage(doppelganger.name, seer.name);
+            game.Update(serverMessage);
+
+            //First night - doppelganger in waiting
+            villager.deathTimer = 0;
+            game.FinishNight();
+            doppelganger.role.hasNightTask.Should().BeFalse();
+
+            //Second night - doppelganger phases
+            seer.deathTimer = 0;
+            game.FinishNight();
+            doppelganger.role.name.Should().Be("Seer");
 
         }
 

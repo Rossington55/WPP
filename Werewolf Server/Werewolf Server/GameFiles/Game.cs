@@ -12,6 +12,7 @@ namespace Werewolf_Server
         private List<Player> _players = new List<Player>();
         private List<Message> _messagesOut;
         private GameModes gameModes;
+        private bool tannerVoted = false;
 
         public List<Player> AlivePlayers
         {
@@ -47,6 +48,8 @@ namespace Werewolf_Server
         {
             state = State.Lobby;
             gameModes = new GameModes();
+            tannerVoted = false;
+            _players = new List<Player>();
         }
 
         public List<Message> Start(List<Connection> users, string gameMode)
@@ -187,6 +190,8 @@ namespace Werewolf_Server
 
                 player.votes = 0;
                 player.votedBy = new List<string>();
+                player.canVote = true;
+
                 //Unready those with tasks
                 if (player.role.hasNightTask)
                 {
@@ -317,6 +322,11 @@ namespace Werewolf_Server
 
         public void FinishNight()
         {
+            //Reset in the case of diseased in play
+            foreach (Player werewolf in Werewolves)
+            {
+                werewolf.role.hasNightTask = true;
+            }
 
             //Sanity check, find the player most bitten by werewolves
             Player? murderedPlayer = null;
@@ -368,6 +378,16 @@ namespace Werewolf_Server
             }
             else
             {
+                //Disable werewolf tasks for next night
+                //will reset at the next FinishNight()
+                if (player.role.name == "Diseased")
+                {
+                    foreach (Player werewolf in Werewolves)
+                    {
+                        werewolf.role.hasNightTask = false;
+                    }
+                }
+
                 MurderPlayer(player);
             }
         }
@@ -391,15 +411,36 @@ namespace Werewolf_Server
                     _messagesOut.Add(new Message(apprentice.name, CommandClient.Role, apprentice.RoleDetails));
                 }
             }
+
+            //Activate doppelganger
+            if (murderedPlayer.selectedByDoppelganger)
+            {
+                Player doppelganger = GetPlayerByRole("Doppelganger");
+                if(doppelganger != null)
+                {
+                    doppelganger.role = murderedPlayer.role;
+                    _messagesOut.Add(new Message(doppelganger.name, CommandClient.Role, doppelganger.RoleDetails));
+                }
+            }
+
+            //Kill any linked players
+            if(murderedPlayer.linkedPlayer != null && murderedPlayer.linkedPlayer.alive)
+            {
+                MurderPlayer(murderedPlayer.linkedPlayer);
+            }
+
         }
 
         private List<string> SelectVote(Message message)
         {
             List<string> voteList = new List<string>();
+            Player? me = AlivePlayers.Find(player => player.name == message.player);
+            if (me == null) { return voteList; }
 
             //Find the selected player
             Player? selectedPlayer = _players.Find(player => player.name == message.data[0]);
             if (selectedPlayer == null) { return voteList; }
+            if (!me.canVote) { return voteList; }
 
             //Select/Deselect
             if (message.subCommand == "select")
@@ -441,9 +482,14 @@ namespace Werewolf_Server
 
         private void SubmitVote(Message message)
         {
+            int playerCount = AlivePlayers.Count;
+
+            //Added number to stop mayor bulldozing votes
+            if(AlivePlayers.Find(player => player.role.name == "Mayor") != null) { playerCount++; }
+
             //Confirm Submission and verify not already voted
             Player? me = _players.Find(player => player.name == message.player);
-            if (me == null || me.ready) { return; }
+            if (me == null || me.ready || !me.canVote) { return; }
             me.ready = true;
 
             _messagesOut.Add(new Message(
@@ -455,7 +501,15 @@ namespace Werewolf_Server
             Player? selectedPlayer = _players.Find(player => player.name == message.data[0]);
             if (selectedPlayer == null) { return; }
 
-            selectedPlayer.lockedVotes++;
+            //Mayor votes count twice
+            if (me.role.name == "Mayor")
+            {
+                selectedPlayer.lockedVotes += 2;
+            }
+            else
+            {
+                selectedPlayer.lockedVotes++;
+            }
 
             //Send locked votes list to host
             List<string> lockedVoteList = new List<string>();
@@ -481,18 +535,25 @@ namespace Werewolf_Server
                 {
                     highestLockedVotes = player.lockedVotes;
                     highestVotedPlayer = player;
+                    isTie = false;
                 }
                 else if (player.lockedVotes == highestLockedVotes)
                 {
                     isTie = true;
                 }
+
+                //A bit bodgy but negates any players that cant vote
+                if (!player.canVote)
+                {
+                    totalLockedVotes++;
+                }
             }
 
             //No majority
             //and not all players voted
-            if (highestLockedVotes <= Math.Floor(AlivePlayers.Count / 2.0))
+            if (highestLockedVotes <= playerCount / 2.0)
             {
-                if (totalLockedVotes < AlivePlayers.Count)
+                if (totalLockedVotes < playerCount)
                 {
                     return;
                 }
@@ -502,6 +563,9 @@ namespace Werewolf_Server
             //At this point the majority is found or all have voted
             if (highestVotedPlayer != null && !isTie)
             {
+                //Tanner check
+                if (highestVotedPlayer.role.name == "Tanner") { tannerVoted = true; }
+
                 MurderPlayer(highestVotedPlayer);
             }
 
@@ -519,6 +583,11 @@ namespace Werewolf_Server
                 winningTeam = Team.Cult;
             }
 
+            //Tanner
+            else if (tannerVoted)
+            {
+                winningTeam = Team.Tanner;
+            }
 
             //Check werewolf win
             else if (Werewolves.Count >= AlivePlayers.Count / 2.0)

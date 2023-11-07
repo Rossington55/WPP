@@ -10,7 +10,7 @@ using Werewolf_Server.GameFiles.Roles.Active;
 
 namespace WerewolfServerTest.Tests
 {
-    public class ManipulatorTests: RoleTestFunctions
+    public class ManipulatorTests : RoleTestFunctions
     {
         [Theory]
         [InlineData("Health")]
@@ -89,9 +89,129 @@ namespace WerewolfServerTest.Tests
             game.FinishNight();
             winningTeam = game.CheckEndgame(false);
             winningTeam.Should().Be(Team.Cult);
+        }
 
+        [Fact]
+        public void Diseased()
+        {
+            InitGameForNight(2, "Custom;Werewolf;Diseased");
+            Player diseased = game.GetPlayerByRole("Diseased");
+            Player werewolf = game.GetPlayerByRole("Werewolf");
 
-            
+            //Kill but not by werewolf
+            diseased.deathTimer = 0;
+            game.FinishNight();
+
+            diseased.alive.Should().Be(false);
+            werewolf.role.hasNightTask.Should().BeTrue();
+
+            //Revive diseased
+            diseased.alive = true;
+            diseased.deathTimer = -1;
+
+            //Kill by werewolf
+            diseased.werewolvesAttacking++;
+            game.FinishNight();
+
+            diseased.alive.Should().Be(false);
+            werewolf.role.hasNightTask.Should().BeFalse();
+
+            //Wait a night
+            game.FinishNight();
+            werewolf.role.hasNightTask.Should().BeTrue();
+        }
+
+        [Theory]
+        [InlineData("Villager", "Seer")]
+        [InlineData("Seer", "Seer")]
+        public void OldHag_Submit(string player1Role, string player2Role)
+        {
+            InitGameForNight(3, "Custom;Old Hag;Villager;Seer");
+            Player oldHag = game.GetPlayerByRole("Old Hag");
+            Player player1 = game.GetPlayerByRole(player1Role);
+            Player player2 = game.GetPlayerByRole(player2Role);
+
+            //First night
+            SetServerMessage(oldHag.name, player1.name);
+            var result = game.Update(serverMessage);
+            result.Should().Contain(message => message.commandClient == CommandClient.Alert);
+            player1.canVote.Should().BeFalse();
+
+            //Check unable to vote
+            SetServerMessage(player1.name, player2.name);
+            serverMessage.commandServer = CommandServer.SelectVote;
+            result = game.Update(serverMessage);
+            result.Should().HaveCount(0);
+            serverMessage.commandServer = CommandServer.SubmitVote;
+            result = game.Update(serverMessage);
+            result.Should().HaveCount(0);
+
+            //Second night
+            SetServerMessage(oldHag.name, player2.name);
+            serverMessage.commandServer = CommandServer.NightSubmit;
+            game.NightInit();
+            result = game.Update(serverMessage);
+            if (player1Role == player2Role)
+            {
+                player2.canVote.Should().BeTrue();
+            }
+            else
+            {
+                result.Should().Contain(message => message.commandClient == CommandClient.Alert);
+                player2.canVote.Should().BeFalse();
+            }
+
+        }
+
+        [Theory]
+        [InlineData("Villager", "Seer")]
+        [InlineData("Seer", "Seer")]
+        public void Spellcaster_Submit(string player1Role, string player2Role)
+        {
+            InitGameForNight(3, "Custom;Spellcaster;Villager;Seer");
+            Player oldHag = game.GetPlayerByRole("Spellcaster");
+            Player player1 = game.GetPlayerByRole(player1Role);
+            Player player2 = game.GetPlayerByRole(player2Role);
+
+            //First night
+            SetServerMessage(oldHag.name, player1.name);
+            var result = game.Update(serverMessage);
+            result.Should().Contain(message => message.commandClient == CommandClient.Alert);
+
+            //Second night
+            SetServerMessage(oldHag.name, player2.name);
+            serverMessage.commandServer = CommandServer.NightSubmit;
+            game.NightInit();
+            result = game.Update(serverMessage);
+            if (player1Role == player2Role)
+            {
+                result.Should().NotContain(message => message.commandClient == CommandClient.Alert);
+            }
+            else
+            {
+                result.Should().Contain(message => message.commandClient == CommandClient.Alert);
+            }
+        }
+
+        [Fact]
+        public void Cupid_Submit()
+        {
+            InitGameForNight(3, "Custom;Cupid;Villager;Seer");
+            Player cupid = game.GetPlayerByRole("Cupid");
+            Player player1 = game.GetPlayerByRole("Villager");
+            Player player2 = game.GetPlayerByRole("Seer");
+
+            //Link player 1 and player 2
+            SetServerMessage(cupid.name, "");
+            serverMessage.data = new List<string>() { player1.name, player2.name };
+            game.Update(serverMessage);
+
+            //Kill player 1
+            player1.werewolvesAttacking++;
+            game.FinishNight();
+
+            player1.alive.Should().BeFalse();
+            player2.alive.Should().BeFalse();
         }
     }
 }
