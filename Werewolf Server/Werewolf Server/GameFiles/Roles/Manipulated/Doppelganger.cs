@@ -23,7 +23,8 @@
             selectedPlayer.selectedByDoppelganger = true;
 
             result.data.Add($"When {selectedPlayer.name} dies, you will take on their role");
-                
+
+            this.hasNightTask = false;
             return result;
         }
     }
