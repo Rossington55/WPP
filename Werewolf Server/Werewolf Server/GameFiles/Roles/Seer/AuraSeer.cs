@@ -22,6 +22,12 @@
 
             bool hasSpecial = selectedPlayer.role.hasNightTask;
 
+            //Werewolves technically arent special
+            if(selectedPlayer.role.name == "Werewolf")
+            {
+                hasSpecial = false;
+            }
+
             if (hasSpecial)
             {
                 result.data.Add($"{selectedPlayer.name} HAS a special ability");

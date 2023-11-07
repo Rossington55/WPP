@@ -150,6 +150,34 @@ namespace WerewolfServerTest.Tests
 
         }
 
+        [Theory]
+        [InlineData("Seer", true)]
+        [InlineData("Lycan", false)]
+        [InlineData("Werewolf", false)]
+        [InlineData("Villager", false)]
+        public void AuraSeer_Submit(string role, bool hasAbility)
+        {
+            string players = $"Custom;Aura Seer;{role}";
+            InitGameForNight(3, players);
+            Player auraSeer = game.GetPlayerByRole("Aura Seer");
+            Player selectedPlayer = game.GetPlayerByRole(role);
+
+            SetServerMessage(auraSeer.name, selectedPlayer.name);
+
+            var result = game.Update(serverMessage);
+            if (!GetNightMessage(result)) { return; }
+
+            if (hasAbility)
+            {
+                nightInfoMessage.data[0].Should().Contain("HAS");
+            }
+            else
+            {
+                nightInfoMessage.data[0].Should().Contain("NO");
+            }
+
+        }
+
 
     }
 }
