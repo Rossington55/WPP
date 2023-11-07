@@ -411,6 +411,12 @@ namespace Werewolf_Server
                     _messagesOut.Add(new Message(apprentice.name, CommandClient.Role, apprentice.RoleDetails));
                 }
             }
+
+            //Kill any linked players
+            if(murderedPlayer.linkedPlayer != null && murderedPlayer.linkedPlayer.alive)
+            {
+                MurderPlayer(murderedPlayer.linkedPlayer);
+            }
         }
 
         private List<string> SelectVote(Message message)
