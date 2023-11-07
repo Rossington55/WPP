@@ -12,6 +12,7 @@
             team = Team.Werewolf;
             hasNightTask = true;
             canMultiClick = false;
+            noNightSelection = true;
         }
 
 

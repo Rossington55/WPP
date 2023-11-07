@@ -10,7 +10,7 @@
             nightDescription = "Select to players to see of they're on the same team";
             team = Team.Villager;
             hasNightTask = true;
-            canMultiClick = false;
+            canMultiClick = true;
         }
 
         public override NightTaskResult NightTask(Message message, List<Player> alivePlayers)

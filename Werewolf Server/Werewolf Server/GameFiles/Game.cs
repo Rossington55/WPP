@@ -13,6 +13,7 @@ namespace Werewolf_Server
         private List<Message> _messagesOut;
         private GameModes gameModes;
         private bool tannerVoted = false;
+        private List<Message> _pendingMessages = new List<Message>();
 
         public List<Player> AlivePlayers
         {
@@ -85,6 +86,9 @@ namespace Werewolf_Server
             {
                 case CommandServer.StartNight:
                     NightInit();
+                    break;
+                case CommandServer.StartDay:
+                    ChangeState(State.Day);
                     break;
 
                 case CommandServer.WerewolfSelectPlayer:
@@ -272,7 +276,7 @@ namespace Werewolf_Server
         }
 
         //Change the phase and notify all players including alive player list
-        private void ChangeState(State state)
+        public void ChangeState(State state)
         {
             this.state = state;
             //Notify host of state
@@ -281,6 +285,7 @@ namespace Werewolf_Server
                 CommandClient.State,
                 state.ToString()
                 ));
+
 
             //Notify players of player list
             foreach (Player player in AlivePlayers)
@@ -296,12 +301,19 @@ namespace Werewolf_Server
                 _messagesOut.Add(newStateMessage);
             }
 
+            foreach(Message message in _pendingMessages)
+            {
+                _messagesOut.Add(message);
+            }
+            _pendingMessages.Clear();
+
             //Reset all players
-            foreach (Player player in _players)
+            foreach (Player player in AlivePlayers)
             {
                 player.Reset();
             }
 
+            CheckEndgame(true);
         }
 
         //Check everyone is ready
@@ -326,6 +338,11 @@ namespace Werewolf_Server
             foreach (Player werewolf in Werewolves)
             {
                 werewolf.role.hasNightTask = true;
+                _pendingMessages.Add(new Message(
+                    werewolf.name,
+                    CommandClient.Role,
+                    werewolf.RoleDetails
+                    ));
             }
 
             //Sanity check, find the player most bitten by werewolves
@@ -352,9 +369,6 @@ namespace Werewolf_Server
             {
                 BitePlayer(murderedPlayer);
             }
-
-            ChangeState(State.Day);
-            CheckEndgame(true);
         }
 
         //Specifically kill player by werewolf
@@ -370,7 +384,7 @@ namespace Werewolf_Server
             {
                 player.role = new WerewolfRole();
                 //Alert player of their new role
-                _messagesOut.Add(new Message(
+                _pendingMessages.Add(new Message(
                     player.name,
                     CommandClient.Role,
                     player.RoleDetails
@@ -385,6 +399,16 @@ namespace Werewolf_Server
                     foreach (Player werewolf in Werewolves)
                     {
                         werewolf.role.hasNightTask = false;
+                        _messagesOut.Add(new Message(
+                            werewolf.name,
+                            CommandClient.Alert,
+                            "You just bit the Diseased\nYou won't be able to eat tomorrow night"
+                            ));
+                        _pendingMessages.Add(new Message(
+                            werewolf.name,
+                            CommandClient.Role,
+                            werewolf.RoleDetails
+                            ));
                     }
                 }
 
@@ -398,7 +422,14 @@ namespace Werewolf_Server
 
 
             murderedPlayer.alive = false;
-            _messagesOut.Add(new Message(murderedPlayer.name, CommandClient.Murdered));
+            if (state == State.Night)
+            {
+                _pendingMessages.Add(new Message(murderedPlayer.name, CommandClient.Murdered));
+            }
+            else
+            {
+                _messagesOut.Add(new Message(murderedPlayer.name, CommandClient.Murdered));
+            }
 
             //Activate the apprentice Seer
             if (murderedPlayer.role.name == "Seer")
@@ -408,7 +439,14 @@ namespace Werewolf_Server
                 if (apprentice != null)
                 {
                     apprentice.role.hasNightTask = true;
-                    _messagesOut.Add(new Message(apprentice.name, CommandClient.Role, apprentice.RoleDetails));
+                    if (state == State.Night)
+                    {
+                        _pendingMessages.Add(new Message(apprentice.name, CommandClient.Role, apprentice.RoleDetails));
+                    }
+                    else
+                    {
+                        _messagesOut.Add(new Message(apprentice.name, CommandClient.Role, apprentice.RoleDetails));
+                    }
                 }
             }
 
@@ -416,15 +454,22 @@ namespace Werewolf_Server
             if (murderedPlayer.selectedByDoppelganger)
             {
                 Player doppelganger = GetPlayerByRole("Doppelganger");
-                if(doppelganger != null)
+                if (doppelganger != null)
                 {
                     doppelganger.role = murderedPlayer.role;
-                    _messagesOut.Add(new Message(doppelganger.name, CommandClient.Role, doppelganger.RoleDetails));
+                    if (state == State.Night)
+                    {
+                        _pendingMessages.Add(new Message(doppelganger.name, CommandClient.Role, doppelganger.RoleDetails));
+                    }
+                    else
+                    {
+                        _messagesOut.Add(new Message(doppelganger.name, CommandClient.Role, doppelganger.RoleDetails));
+                    }
                 }
             }
 
             //Kill any linked players
-            if(murderedPlayer.linkedPlayer != null && murderedPlayer.linkedPlayer.alive)
+            if (murderedPlayer.linkedPlayer != null && murderedPlayer.linkedPlayer.alive)
             {
                 MurderPlayer(murderedPlayer.linkedPlayer);
             }
@@ -485,7 +530,7 @@ namespace Werewolf_Server
             int playerCount = AlivePlayers.Count;
 
             //Added number to stop mayor bulldozing votes
-            if(AlivePlayers.Find(player => player.role.name == "Mayor") != null) { playerCount++; }
+            if (AlivePlayers.Find(player => player.role.name == "Mayor") != null) { playerCount++; }
 
             //Confirm Submission and verify not already voted
             Player? me = _players.Find(player => player.name == message.player);
@@ -569,7 +614,6 @@ namespace Werewolf_Server
                 MurderPlayer(highestVotedPlayer);
             }
 
-            CheckEndgame(true);
         }
 
         public Team CheckEndgame(bool canFinalise)

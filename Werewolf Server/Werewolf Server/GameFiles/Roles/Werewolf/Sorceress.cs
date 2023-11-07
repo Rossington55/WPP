@@ -1,4 +1,4 @@
-﻿namespace Werewolf_Server.GameFiles.Roles.Seer
+﻿namespace Werewolf_Server.GameFiles.Roles.Werewolf
 {
     public class Sorceress : Role
     {

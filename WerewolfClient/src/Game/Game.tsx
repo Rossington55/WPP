@@ -14,7 +14,7 @@ import EndGame from './EndGame';
 import DeathScreen from './DeathScreen';
 
 enum GameState { Lobby, Daytime, Nighttime, EndGame }
-export enum Team { None, Villager, Werewolf, Tanner, Vampire }
+export enum Team { None, Villager, Werewolf, Tanner, Vampire, Cult }
 
 export const RoleContext = createContext<Role | null>(null)
 
@@ -26,6 +26,7 @@ export interface Role {
     hasNightTask: boolean,
     canMultiClick: boolean,
     canSelectLast: boolean,
+    noNightSelection: boolean,
 }
 
 export default function Game() {
@@ -65,9 +66,13 @@ export default function Game() {
             case CommandClient.Murdered:
                 setDead(true)
                 break
+            case CommandClient.Alert:
+                handleAlert()
+                break
             case CommandClient.Left:
                 sessionStorage.removeItem("name")
                 window.location.reload()
+                break
 
 
         }
@@ -100,6 +105,10 @@ export default function Game() {
 
     function handleNewRole() {
         if (!socket.recieved.data) { return }
+
+        setDead(false)
+        sessionStorage.removeItem("Used Health")
+        sessionStorage.removeItem("Used Poison")
         const roleDetails: Array<string> = socket.recieved.data
 
         const role: Role = {
@@ -109,8 +118,9 @@ export default function Game() {
             nightDescription: roleDetails[3],
             hasNightTask: JSON.parse(roleDetails[4].toLowerCase()),
             canMultiClick: JSON.parse(roleDetails[5].toLowerCase()),
-            canSelectLast: JSON.parse(roleDetails[6].toLowerCase())
-            
+            canSelectLast: JSON.parse(roleDetails[6].toLowerCase()),
+            noNightSelection: JSON.parse(roleDetails[7].toLowerCase())
+
         }
         setRole(role)
     }
@@ -119,6 +129,16 @@ export default function Game() {
         if (!socket.recieved.data) { return }
         setWinner(socket.recieved.data[0])
         setGameState(GameState.EndGame)
+    }
+
+    function handleAlert() {
+
+        if (!socket.recieved.data) { return }
+        let output = ""
+        for (let item of socket.recieved.data) {
+            output += `\n${item}`
+        }
+        window.alert(output)
     }
 
     return (
@@ -134,19 +154,23 @@ export default function Game() {
                         />
                     }
 
-                    {gameState === GameState.Daytime &&
-                        <Daytime
-                            players={players}
-                        />
-                    }
+                    {role &&
+                        <>
+                            {gameState === GameState.Daytime &&
+                                <Daytime
+                                    players={players}
+                                />
+                            }
 
-                    {gameState === GameState.Nighttime &&
-                        <Night
-                            players={players}
-                        />
-                    }
-                    {gameState === GameState.EndGame &&
-                        <EndGame winner={winner} />
+                            {gameState === GameState.Nighttime &&
+                                <Night
+                                    players={players}
+                                />
+                            }
+                            {gameState === GameState.EndGame &&
+                                <EndGame winner={winner} />
+                            }
+                        </>
                     }
                 </RoleContext.Provider>
             }
@@ -165,7 +189,7 @@ export default function Game() {
                             color="green"
                             onClick={() => socket.send({
                                 commandServer: CommandServer.Start,
-                                subCommand: "Custom;Werewolf;Bodyguard;Villager"//FOR DEV ONLY
+                                subCommand: "Custom;Werewolf;Mystic Seer"//FOR DEV ONLY
                             })}
                         >
                             Start Game
@@ -177,6 +201,14 @@ export default function Game() {
                             onClick={() => socket.send({ commandServer: CommandServer.StartNight })}
                         >
                             Start Night
+                        </Button>
+                    }
+                    {gameState === GameState.Nighttime &&
+                        <Button
+                            color="green"
+                            onClick={() => socket.send({ commandServer: CommandServer.StartDay })}
+                        >
+                            Start Day
                         </Button>
                     }
                 </article>

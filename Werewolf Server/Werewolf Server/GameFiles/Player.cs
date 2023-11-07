@@ -45,7 +45,8 @@
                     role.nightDescription,          // 3
                     role.hasNightTask.ToString(),   // 4
                     role.canMultiClick.ToString(),  // 5
-                    role.canSelectLast.ToString()   // 6
+                    role.canSelectLast.ToString(),  // 6
+                    role.noNightSelection.ToString()   // 7
                 };
             }
         }
@@ -57,6 +58,7 @@
             this.werewolvesAttacking = 0;
             this.votedBy.Clear();
             this.invincible = false;
+            this.ready = false;
         }
     }
 }

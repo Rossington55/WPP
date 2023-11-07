@@ -29,6 +29,7 @@ namespace WerewolfServerTest.Tests
 
 
             var result = game.Update(serverMessage);
+            game.ChangeState(State.Day);
 
             //Submitted, update host, update all players of day, murdered
             result.Should().HaveCountGreaterThan(3);

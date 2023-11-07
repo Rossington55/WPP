@@ -138,7 +138,7 @@ export default function Daytime(props: Props) {
 
             <Button
                 color="blue"
-                disabled={props.done}
+                disabled={submitted}
                 onClick={() => submitVote()}
             >
                 Lock Vote
