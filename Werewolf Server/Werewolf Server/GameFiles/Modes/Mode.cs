@@ -89,6 +89,9 @@ namespace Werewolf_Server.GameFiles.Modes
                     case "Old Hag":
                         roles.Add(new OldHag());
                         break;
+                    case "Spellcaster":
+                        roles.Add(new Spellcaster());
+                        break;
 
                     //Manipulated
                     case "Tough Guy":

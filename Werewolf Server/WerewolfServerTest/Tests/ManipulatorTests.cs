@@ -162,5 +162,36 @@ namespace WerewolfServerTest.Tests
             }
 
         }
+
+        [Theory]
+        [InlineData("Villager", "Seer")]
+        [InlineData("Seer", "Seer")]
+        public void Spellcaster_Submit(string player1Role, string player2Role)
+        {
+            InitGameForNight(3, "Custom;Spellcaster;Villager;Seer");
+            Player oldHag = game.GetPlayerByRole("Spellcaster");
+            Player player1 = game.GetPlayerByRole(player1Role);
+            Player player2 = game.GetPlayerByRole(player2Role);
+
+            //First night
+            SetServerMessage(oldHag.name, player1.name);
+            var result = game.Update(serverMessage);
+            result.Should().Contain(message => message.commandClient == CommandClient.Alert);
+
+            //Second night
+            SetServerMessage(oldHag.name, player2.name);
+            serverMessage.commandServer = CommandServer.NightSubmit;
+            game.NightInit();
+            result = game.Update(serverMessage);
+            if (player1Role == player2Role)
+            {
+                result.Should().NotContain(message => message.commandClient == CommandClient.Alert);
+            }
+            else
+            {
+                result.Should().Contain(message => message.commandClient == CommandClient.Alert);
+            }
+
+        }
     }
 }
