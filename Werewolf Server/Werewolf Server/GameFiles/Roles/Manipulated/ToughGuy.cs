@@ -1,12 +1,12 @@
-﻿namespace Werewolf_Server.GameFiles.Roles.Passive
+﻿namespace Werewolf_Server.GameFiles.Roles.Manipulated
 {
-    public class Lycan : Role
+    public class ToughGuy : Role
     {
 
-        public Lycan()
+        public ToughGuy()
         {
-            name = "Lycan";
-            description = "A Villager with Wolf blood. Will be seen as a Werwolf although you aren't one.";
+            name = "Tough Guy";
+            description = "You take two nights to die by Werewolf";
             nightDescription = "Time for a calm and 'safe' rest";
 
             team = Team.Villager;

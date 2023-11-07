@@ -10,7 +10,7 @@
         }
     }
 
-    public enum Team { None, Villager, Werewolf, Tanner, Vampire }
+    public enum Team { None, Villager, Werewolf, Tanner, Vampire, Cult }
     public abstract class Role
     {
         public string name;

@@ -1,15 +1,17 @@
 ﻿namespace Werewolf_Server.GameFiles.Roles.Active
 {
-    public class Priest : Role
+    public class Huntress : Role
     {
-        public Priest()
+
+        public Huntress()
         {
-            name = "Priest";
-            description = "May protect someone once";
-            nightDescription = "You may protect someone. (One time use)";
+            name = "Huntress";
+            description = "Can kill a player every night";
+            nightDescription = "Choose someone to kill";
             team = Team.Villager;
             hasNightTask = true;
             canMultiClick = false;
+            canSelectLast = false;
         }
 
 
@@ -21,14 +23,11 @@
             //Get the selected player if the prayer is used
             Player? selectedPlayer = null;
             selectedPlayer = players.Find(player => player.name == message.data[0]);
-            if (selectedPlayer == null) { return result; }
+            if (selectedPlayer == null ) { return result; }
 
-            selectedPlayer.invincible = true;
+            selectedPlayer.deathTimer = 0;
 
-            result.data.Add("Your prayers have been answered");
-            result.data.Add($"{selectedPlayer.name} will be protected for tonight");
-
-            hasNightTask = false;
+            result.data.Add($"You cast your bow at {selectedPlayer.name}");
 
             return result;
         }

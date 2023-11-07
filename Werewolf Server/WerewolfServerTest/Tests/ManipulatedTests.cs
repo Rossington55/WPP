@@ -10,7 +10,7 @@ using Werewolf_Server.GameFiles.Roles.Active;
 
 namespace WerewolfServerTest.Tests
 {
-    public class ManipulatedTests : RoleTests
+    public class ManipulatedTests : RoleTestFunctions
     {
 
 

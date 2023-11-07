@@ -1,4 +1,4 @@
-﻿namespace Werewolf_Server.GameFiles.Roles.Active
+﻿namespace Werewolf_Server.GameFiles.Roles.Manipulator
 {
     public class Witch : Role
     {

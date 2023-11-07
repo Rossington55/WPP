@@ -10,7 +10,7 @@ using Werewolf_Server.GameFiles.Roles.Active;
 
 namespace WerewolfServerTest.Tests
 {
-    public class ManipulatorTests: RoleTests
+    public class ManipulatorTests: RoleTestFunctions
     {
         [Theory]
         [InlineData("Health")]
@@ -63,6 +63,35 @@ namespace WerewolfServerTest.Tests
                 labRat.alive = true;
                 labRat.deathTimer = -1;
             }
+        }
+
+        [Fact]
+        public void CultLeader()
+        {
+            InitGameForNight(4, "Custom;Cult Leader;Villager;Seer;Mason");
+            Player cultLeader = game.GetPlayerByRole("Cult Leader");
+            Player villager = game.GetPlayerByRole("Villager");
+            Player seer = game.GetPlayerByRole("Seer");
+            Player mason = game.GetPlayerByRole("Mason");
+            Team winningTeam;
+
+            //By end of night - Cult,Villager(cult),Seer,Mason(dead) - no win
+            mason.deathTimer = 0;
+            SetServerMessage(cultLeader.name, villager.name);
+            game.Update(serverMessage);
+            game.FinishNight();
+            winningTeam = game.CheckEndgame(false);
+            winningTeam.Should().NotBe(Team.Cult);
+
+            //By end of night - Cult,Villager(cult),Seer(cult),Mason(dead) - win!
+            SetServerMessage(cultLeader.name, seer.name);
+            game.Update(serverMessage);
+            game.FinishNight();
+            winningTeam = game.CheckEndgame(false);
+            winningTeam.Should().Be(Team.Cult);
+
+
+            
         }
     }
 }

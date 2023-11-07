@@ -7,10 +7,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Werewolf_Server;
 using Werewolf_Server.GameFiles.Roles.Active;
+using Werewolf_Server.GameFiles.Roles.Seer;
 
 namespace WerewolfServerTest.Tests
 {
-    public class SeerTests : RoleTests
+    public class SeerTests : RoleTestFunctions
     {
 
         [Theory]
@@ -145,6 +146,34 @@ namespace WerewolfServerTest.Tests
             else
             {
                 nightInfoMessage.data[0].Should().Contain("NOT");
+            }
+
+        }
+
+        [Theory]
+        [InlineData("Seer", true)]
+        [InlineData("Lycan", false)]
+        [InlineData("Werewolf", false)]
+        [InlineData("Villager", false)]
+        public void AuraSeer_Submit(string role, bool hasAbility)
+        {
+            string players = $"Custom;Aura Seer;{role}";
+            InitGameForNight(3, players);
+            Player auraSeer = game.GetPlayerByRole("Aura Seer");
+            Player selectedPlayer = game.GetPlayerByRole(role);
+
+            SetServerMessage(auraSeer.name, selectedPlayer.name);
+
+            var result = game.Update(serverMessage);
+            if (!GetNightMessage(result)) { return; }
+
+            if (hasAbility)
+            {
+                nightInfoMessage.data[0].Should().Contain("HAS");
+            }
+            else
+            {
+                nightInfoMessage.data[0].Should().Contain("NO");
             }
 
         }

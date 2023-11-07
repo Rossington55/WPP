@@ -1,5 +1,9 @@
 ﻿using Werewolf_Server.GameFiles.Roles.Active;
-using Werewolf_Server.GameFiles.Roles.Passive;
+using Werewolf_Server.GameFiles.Roles.Manipulated;
+using Werewolf_Server.GameFiles.Roles.Manipulator;
+using Werewolf_Server.GameFiles.Roles.Protector;
+using Werewolf_Server.GameFiles.Roles.Seer;
+using Werewolf_Server.GameFiles.Roles.Villager;
 using Werewolf_Server.GameFiles.Roles.Werewolf;
 
 namespace Werewolf_Server.GameFiles.Modes
@@ -19,12 +23,15 @@ namespace Werewolf_Server.GameFiles.Modes
             {
                 switch (roleName)
                 {
+                    //Villager
                     case "Villager":
-                        roles.Add(new Villager());
+                        roles.Add(new VillagerRole());
                         break;
                     case "Mason":
                         roles.Add(new Mason());
                         break;
+
+                    //Werewolf
                     case "Werewolf":
                         roles.Add(new WerewolfRole());
                         break;
@@ -34,6 +41,8 @@ namespace Werewolf_Server.GameFiles.Modes
                     case "Minion":
                         roles.Add(new Minion());
                         break;
+
+                    //Seer
                     case "Seer":
                         roles.Add(new Seer());
                         break;
@@ -49,15 +58,27 @@ namespace Werewolf_Server.GameFiles.Modes
                     case "Revealer":
                         roles.Add(new Revealer());
                         break;
+                    case "Aura Seer":
+                        roles.Add(new AuraSeer());
+                        break;
+
+                    //Protector
                     case "Bodyguard":
                         roles.Add(new Bodyguard());
                         break;
                     case "Priest":
                         roles.Add(new Priest());
                         break;
+
+                    //Manipulator
                     case "Witch":
                         roles.Add(new Witch());
                         break;
+                    case "Cult Leader":
+                        roles.Add(new CultLeader());
+                        break;
+
+                    //Manipulated
                     case "Tough Guy":
                         roles.Add(new ToughGuy());
                         break;
@@ -70,13 +91,18 @@ namespace Werewolf_Server.GameFiles.Modes
                     case "Lycan":
                         roles.Add(new Lycan());
                         break;
+
+                    //Killer
+                    case "Huntress":
+                        roles.Add(new Huntress());
+                        break;
                 }
             }
 
             //Pad remaining roles with villagers
             while (playerCount > roles.Count)
             {
-                roles.Add(new Villager());
+                roles.Add(new VillagerRole());
             }
 
         }

@@ -1,4 +1,4 @@
-﻿namespace Werewolf_Server.GameFiles.Roles.Active
+﻿namespace Werewolf_Server.GameFiles.Roles.Protector
 {
     public class Bodyguard : Role
     {
