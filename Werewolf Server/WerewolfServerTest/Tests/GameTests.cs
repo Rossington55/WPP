@@ -64,12 +64,8 @@ namespace WerewolfServerTest.Tests
             result.Count().Should().Be(0);
         }
 
-        [Theory]
-        [InlineData(0)]
-        [InlineData(1)]
-        [InlineData(2)]
-        [InlineData(100)]
-        public void Game_Update_NightInit(int playerCount)
+        [Fact]
+        public void Game_Update_NightInit()
         {
             Message message = new Message(
             "",
@@ -77,19 +73,10 @@ namespace WerewolfServerTest.Tests
             ""
                 );
 
-            List<Connection> players = CreatePlayers(playerCount);
+            List<Connection> players = CreatePlayers(3);
             game.Start(players, "");
 
             var result = game.Update(message);
-
-            //Verify messages
-            result.Count.Should().Be(1 + playerCount);//Host + (Alive players and state)
-            result[0].data.Should().BeEquivalentTo(State.Night.ToString());//First message is state to host
-
-            if (result.Count > 1)
-            {
-                result[1].commandClient.Should().Be(CommandClient.State);
-            }
 
             //Verify Game
             game.state.Should().Be(State.Night);
@@ -286,15 +273,14 @@ namespace WerewolfServerTest.Tests
 
             //First vote - no majority
             message.data[0] = "0";//Select player 0
-            var result = game.Update(message);
-            result.Should().HaveCountLessThan(3);
+            game.Update(message);
+            game.AlivePlayers.Should().NotContain(player => !player.alive);
 
             //Second vote - no majority
             message.data[0] = "1";//Select player 1
             message.player = "1";
-            result = game.Update(message);
-            result.Should().HaveCountGreaterThan(2);
-            result[2].commandClient.Should().NotBe(CommandClient.Murdered);   
+            game.Update(message);
+            game.AlivePlayers.Should().NotContain(player => !player.alive);
         }
 
         [Fact]

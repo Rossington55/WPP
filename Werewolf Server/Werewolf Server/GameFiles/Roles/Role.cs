@@ -18,6 +18,7 @@
         public string nightDescription;//What to do at night
         public Team team;
         public bool hasNightTask;
+        public bool noNightSelection = false;
         public bool canMultiClick;
         public bool canSelectLast = true;
 

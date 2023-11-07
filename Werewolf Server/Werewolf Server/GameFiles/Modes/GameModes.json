@@ -8,6 +8,11 @@
     "name": "Mafia",
     "minPlayerCount": 3,
     "roleNames": [ "Werewolf" ]
+  },
+  {
+    "name": "Coven",
+    "minPlayerCount": 3,
+    "roleNames": ["Witch","Werewolf"]
   }
 
 ]

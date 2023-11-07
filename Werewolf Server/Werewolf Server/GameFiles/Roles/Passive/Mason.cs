@@ -12,6 +12,7 @@
             team = Team.Villager;
             hasNightTask = true;
             canMultiClick = false;
+            noNightSelection = true;
         }
 
 

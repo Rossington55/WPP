@@ -21,6 +21,8 @@ namespace WerewolfServerTest.Tests
 
             for (int i = 0; i < 2; i++)
             {
+                game.ChangeState(State.Night);
+
                 //Bite the lab rat
                 labRat.werewolvesAttacking++;
 
@@ -28,6 +30,7 @@ namespace WerewolfServerTest.Tests
                 game.Update(serverMessage);
 
                 game.FinishNight();
+                game.ChangeState(State.Day);
 
                 if (i == 0)
                 {
@@ -55,8 +58,8 @@ namespace WerewolfServerTest.Tests
 
             for (int i = 0; i < 4; i++)
             {
+                game.ChangeState(State.Night);
                 //Bite the lab rat
-
                 SetServerMessage(bodyguard.name, labRat.name);
 
                 if (i == 2)
@@ -74,6 +77,7 @@ namespace WerewolfServerTest.Tests
                 game.Update(serverMessage);
 
                 game.FinishNight();
+                game.ChangeState(State.Day);
 
                 switch (i)
                 {

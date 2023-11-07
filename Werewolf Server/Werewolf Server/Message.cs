@@ -16,6 +16,7 @@ namespace Werewolf_Server
         NightSubmit,            //9
         SelectVote,             //10 Choosse someone to vote but not locked in
         SubmitVote,             //11 Lock in a vote
+        StartDay,             //11 Lock in a vote
     }
     public enum CommandClient
     {

@@ -15,6 +15,7 @@ namespace Werewolf_Server.GameFiles.Roles.Manipulated
             team = Team.Villager;
             hasNightTask = true;
             canMultiClick = false;
+            noNightSelection = true;
         }
 
 

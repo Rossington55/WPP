@@ -8,6 +8,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { Role, RoleContext, Team } from '../Game';
 import { Button, Chip, List, ListItem, ListItemSuffix } from '@material-tailwind/react';
 import { CommandClient, CommandServer, SocketContext } from '../../App';
+import { ALL_ROLE_BUTTONS, RoleButton, RoleButtons } from '../../generics/Config';
 
 interface Props {
     players: Array<string>,
@@ -16,13 +17,16 @@ interface Props {
 interface Player {
     name: string,
     selectedCount: number,
-    selectedByMe: boolean
+    selectedByMe: boolean,
+    nextToDeselect: boolean
 }
+
 
 export default function Night(props: Props) {
     const [players, setPlayers] = useState<Array<Player>>([])
     const [submitted, setSubmitted] = useState<boolean>(false)
-    const [nightInfo, setNightInfo] = useState<string>("")
+    const [nightInfo, setNightInfo] = useState<Array<string>>([])
+    const [myRoleButtons, setMyRoleButtons] = useState<Array<RoleButton>>([])
     const myName = sessionStorage.getItem("name") ?? ""
     const socket = useContext(SocketContext)
     const role = useContext(RoleContext)
@@ -46,24 +50,39 @@ export default function Night(props: Props) {
             newPlayers.push({
                 name: name,
                 selectedByMe: false,
-                selectedCount: 0
+                selectedCount: 0,
+                nextToDeselect: false,
             })
         }
         setPlayers(newPlayers)
     }, [props.players])
 
+    useEffect(() => {
+        getMyRoleButtons()
+    }, [])
+
     function handleSelect(i: number) {
         let newPlayers = [...players]
 
 
-        //No multiclick
-        //First deselect ALL players
-        if (!role?.canMultiClick) {
+        //Multiclick
+        if (role?.canMultiClick) {
+            for (let player of newPlayers) {
+                if (player.nextToDeselect) {
+                    player.selectedByMe = false
+                    player.nextToDeselect = false
+                } else if (player.selectedByMe) {
+                    player.nextToDeselect = true
+                }
+            }
+
+        } else {//Single click
+            //First deselect ALL players
             //Only select one at a time
             for (let player of newPlayers) {
 
                 //WEREWOLF CLICK
-                if (player.selectedByMe && role?.team === Team.Werewolf) {
+                if (player.selectedByMe && (role?.team === Team.Werewolf) && (role.name === "Werewolf")) {
                     socket.send({
                         commandServer: CommandServer.WerewolfSelectPlayer,
                         player: myName,
@@ -73,6 +92,7 @@ export default function Night(props: Props) {
                 }
                 player.selectedByMe = false
             }
+
         }
 
         //Select just this player
@@ -81,7 +101,7 @@ export default function Night(props: Props) {
         newPlayers[i].selectedByMe = !player.selectedByMe
 
         //WEREWOLF CLICK
-        if (role?.team == Team.Werewolf) {
+        if (role?.team == Team.Werewolf && role.name === "Werewolf") {
             socket.send({
                 commandServer: CommandServer.WerewolfSelectPlayer,
                 player: myName,
@@ -107,7 +127,7 @@ export default function Night(props: Props) {
         setPlayers(newPlayers)
     }
 
-    function handleSubmit() {
+    function handleSubmit(buttonClicked: RoleButton) {
         //Create list of selected player names
         let selectedPlayerNames: Array<string> = []
         const selectedPlayers = players.filter(player => player.selectedByMe)
@@ -115,32 +135,20 @@ export default function Night(props: Props) {
             selectedPlayerNames.push(player.name)
         })
 
+        const subCommand: string = buttonClicked.returnString ?? ""
 
         socket.send({
             commandServer: CommandServer.NightSubmit,
+            subCommand: subCommand,
             player: myName,
             data: selectedPlayerNames
         })
-    }
 
-    function canBeReady() {
-
-        //Werewolf validation
-        if (role?.team == Team.Werewolf) {
-            let selectedPlayers = players.filter(player => player.selectedCount > 0)
-
-            //Cant select multiple people
-            if (selectedPlayers.length > 1) {
-                return false
-            }
-
-            //Cant select different people
-            if (selectedPlayers.length === 1) {
-                return selectedPlayers[0].selectedByMe
-            }
+        if (buttonClicked.returnString === "Health") {
+            sessionStorage.setItem("Used Health", "true")
+        } else if (buttonClicked.returnString === "Poison") {
+            sessionStorage.setItem("Used Poison", "true")
         }
-
-        return players.findIndex(player => player.selectedByMe) > -1
     }
 
     function handleNightInfo() {
@@ -148,7 +156,46 @@ export default function Night(props: Props) {
         const selectedPlayers = players.filter(player => player.selectedByMe).map(player => player.name);
         sessionStorage.setItem("lastSelectedPlayers", JSON.stringify(selectedPlayers));
         if (!socket.recieved.data) { return }
-        setNightInfo(socket.recieved.data[0])
+        setNightInfo(socket.recieved.data)
+    }
+
+    function getMyRoleButtons() {
+        if (!role) { return }
+
+        for (let roleButtons of ALL_ROLE_BUTTONS) {
+            if (roleButtons.name.includes(role.name)) {
+                setMyRoleButtons(roleButtons.buttons)
+            }
+        }
+    }
+
+    function checkReadyDisabled(button: RoleButton) {
+
+        //Werewolf validation
+        if (role?.team == Team.Werewolf) {
+            let selectedPlayers = players.filter(player => player.selectedCount > 0)
+
+            //Cant select multiple people
+            if (selectedPlayers.length > 1) {
+                return true
+            }
+
+            //Cant select different people
+            if (selectedPlayers.length === 1) {
+                return !selectedPlayers[0].selectedByMe
+            }
+        }
+
+        if (button.requiredSelections || button.requiredSelections === 0) {
+            return players.filter(player => player.selectedByMe).length !== button.requiredSelections
+        }
+
+        if (role?.name === "Witch") {
+            if (button.returnString === "Health") { return sessionStorage.getItem("Used Health") }
+            if (button.returnString === "Poison") { return sessionStorage.getItem("Used Poison") }
+        }
+
+        return players.findIndex(player => player.selectedByMe) == -1
     }
 
     return (
@@ -161,7 +208,7 @@ export default function Night(props: Props) {
 
                     <h2>{role?.nightDescription}</h2>
 
-                    {role?.hasNightTask &&
+                    {role?.hasNightTask && !role.noNightSelection &&
                         <List>
                             {players.map((player, i) => (
                                 <ListItem
@@ -184,36 +231,31 @@ export default function Night(props: Props) {
                     }
 
                     {role?.hasNightTask &&
-                        <Button
-                            disabled={!canBeReady()}
-                            color='blue'
-                            onClick={handleSubmit}
-                        >
-                            Submit
-                        </Button>
+                        <article className='gap-2'>
+                            {myRoleButtons.map((button, i) => (
+                                <Button
+                                    key={i}
+                                    disabled={checkReadyDisabled(button)}
+                                    color='blue'
+                                    className={button.className}
+                                    onClick={() => handleSubmit(button)}
+                                >
+                                    {button.label}
+                                </Button>
+                            ))}
+                        </article>
                     }
                 </article>
                 :
                 <article>
                     Done for the night
 
-                    {nightInfo !== "" &&
+                    {nightInfo.length > 0 &&
                         <article className='gap-5'>
-
-                            {/* Selected Player Names */}
-                            <article>
-                                <h2>Selected</h2>
-                                {players.map((player, i) => (
-                                    <>
-                                        {player.selectedByMe &&
-                                            <h3>{player.name}</h3>
-                                        }
-                                    </>
-                                ))}
-                            </article>
-
                             {/* Result */}
-                            <h2>{nightInfo}</h2>
+                            {nightInfo.map((info, i) => (
+                                <h2 key={i}>{info}</h2>
+                            ))}
                         </article>
                     }
                 </article>
@@ -221,3 +263,4 @@ export default function Night(props: Props) {
         </article>
     );
 }
+

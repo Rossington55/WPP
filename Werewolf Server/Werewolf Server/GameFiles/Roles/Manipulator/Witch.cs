@@ -48,7 +48,20 @@
             }
 
             //Remove night task if both potions are used
-            if (!healthPotionUsed && !poisonPotionUsed) { hasNightTask = false; }
+            if (healthPotionUsed && poisonPotionUsed)
+            {
+                hasNightTask = false;
+                Player? me = players.Find(player => player.name == message.player);
+                if (me != null)
+                {
+                    result.secondaryMessage = new Message(
+                        me.name,
+                        CommandClient.Role,
+                        me.RoleDetails
+                        );
+                }
+            }
+
 
             return result;
         }

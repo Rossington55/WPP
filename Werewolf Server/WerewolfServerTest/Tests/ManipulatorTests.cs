@@ -33,6 +33,7 @@ namespace WerewolfServerTest.Tests
                 game.Update(serverMessage);
 
                 game.FinishNight();
+                game.ChangeState(State.Day);
 
                 if (potion == "Health")
                 {
