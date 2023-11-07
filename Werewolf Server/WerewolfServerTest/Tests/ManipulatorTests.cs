@@ -89,9 +89,36 @@ namespace WerewolfServerTest.Tests
             game.FinishNight();
             winningTeam = game.CheckEndgame(false);
             winningTeam.Should().Be(Team.Cult);
+        }
 
+        [Fact]
+        public void Diseased()
+        {
+            InitGameForNight(4, "Custom;Werewolf;Diseased");
+            Player diseased = game.GetPlayerByRole("Diseased");
+            Player werewolf = game.GetPlayerByRole("Werewolf");
 
-            
+            //Kill but not by werewolf
+            diseased.deathTimer = 0;
+            game.FinishNight();
+
+            diseased.alive.Should().Be(false);
+            werewolf.role.hasNightTask.Should().BeTrue();
+
+            //Revive diseased
+            diseased.alive = true;
+            diseased.deathTimer = -1;
+
+            //Kill by werewolf
+            diseased.werewolvesAttacking++;
+            game.FinishNight();
+
+            diseased.alive.Should().Be(false);
+            werewolf.role.hasNightTask.Should().BeFalse();
+
+            //Wait a night
+            game.FinishNight();
+            werewolf.role.hasNightTask.Should().BeTrue();
         }
     }
 }
