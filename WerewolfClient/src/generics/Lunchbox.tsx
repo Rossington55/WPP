@@ -6,7 +6,6 @@
       snack - {severity, label <optional>}
  */
 
-import React from 'react';
 import { Snackbar, Alert, AlertTitle, AlertColor } from '@mui/material';//Inputs
 import { useEffect } from 'react';
 import { useState } from 'react';

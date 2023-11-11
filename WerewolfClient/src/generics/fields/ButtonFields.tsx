@@ -19,7 +19,6 @@
 import { IconButton } from '@material-tailwind/react';
 import { size, color } from '@material-tailwind/react/types/components/button';
 import { Tooltip } from '@mui/material';
-import React from 'react';
 import { Target } from './BasicField';
 
 interface Option {

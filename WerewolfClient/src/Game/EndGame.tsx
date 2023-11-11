@@ -4,7 +4,7 @@
       
  */
 
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { RoleContext, Team } from './Game';
 interface Props {
     winner: string

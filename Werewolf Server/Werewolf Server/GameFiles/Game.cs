@@ -67,6 +67,12 @@ namespace Werewolf_Server
                 _players.Add(newPlayer);
                 users[i].player = newPlayer;
 
+                //Broadcast start of game
+                _messagesOut.Add(new Message(
+                    newPlayer.name,
+                    CommandClient.StartingGame
+                    ));
+
                 //Broadcast new role
                 _messagesOut.Add(new Message(
                     newPlayer.name,

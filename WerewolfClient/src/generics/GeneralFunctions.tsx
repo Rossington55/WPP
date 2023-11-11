@@ -1,5 +1,4 @@
-﻿import { apiGetCall } from "./APIFunctions";
-import moment from "moment";
+﻿import moment from "moment";
 
 
 function reverseDate(d: string, mdy: boolean): string {//     YYYY/MM/DD <--> DD/MM/YYYY  or   DD/MM/YYYY <-->  MM/DD/YYYY

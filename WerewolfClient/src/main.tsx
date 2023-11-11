@@ -1,7 +1,7 @@
-import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './styles/index.css'
+import './styles/animations.css'
 import { StyledEngineProvider } from '@mui/material'
 import { ThemeProvider } from "@material-tailwind/react";
 

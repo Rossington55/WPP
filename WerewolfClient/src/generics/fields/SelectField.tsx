@@ -26,7 +26,7 @@
  */
 
 import { Option, Select } from '@material-tailwind/react';
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useState } from 'react';
 import { apiGetCall } from '../APIFunctions';
 import { capsFirstLetter } from '../GeneralFunctions';

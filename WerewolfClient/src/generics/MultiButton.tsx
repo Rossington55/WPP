@@ -5,7 +5,6 @@
  */
 
 import { Button, ButtonGroup } from '@material-tailwind/react';
-import React from 'react';
 
 interface Props {
     options: Array<string>,

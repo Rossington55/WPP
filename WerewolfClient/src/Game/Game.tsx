@@ -4,7 +4,7 @@
       
  */
 
-import React, { useContext, useEffect, useState, createContext } from 'react';
+import { useContext, useEffect, useState, createContext } from 'react';
 import { CommandClient, CommandServer, SocketContext } from '../App';
 import { Button } from '@material-tailwind/react';
 import Lobby from './Lobby';
@@ -12,6 +12,7 @@ import Daytime from './Daytime';
 import Night from './Night/Night';
 import EndGame from './EndGame';
 import DeathScreen from './DeathScreen';
+import NewRole from './NewRole';
 
 enum GameState { Lobby, Daytime, Nighttime, EndGame }
 export enum Team { None, Villager, Werewolf, Tanner, Vampire, Cult }
@@ -30,9 +31,10 @@ export interface Role {
 }
 
 export default function Game() {
-    const [done, setDone] = useState<boolean>(false)
     const [players, setPlayers] = useState<Array<string>>([])
     const [gameState, setGameState] = useState<GameState>(GameState.Lobby)
+    const [startingGame, setStartingGame] = useState<boolean>(false)
+    const [gameStarted, setGameStarted] = useState<boolean>(false)
     const [role, setRole] = useState<Role | null>(null)
     const [amHost, setAmHost] = useState<boolean>(false)
     const [winner, setWinner] = useState<string>("")
@@ -47,6 +49,9 @@ export default function Game() {
     }, [])
     useEffect(() => {
         switch (socket.recieved.commandClient) {
+            case CommandClient.StartingGame:
+                handleStartingGame()
+                break
             case CommandClient.PlayerList:
                 refreshPlayers()
                 break
@@ -73,8 +78,6 @@ export default function Game() {
                 sessionStorage.removeItem("name")
                 window.location.reload()
                 break
-
-
         }
 
     }, [socket.recieved])
@@ -86,11 +89,9 @@ export default function Game() {
                 setGameState(GameState.Lobby)
                 break
             case "Day":
-                setDone(false)
                 setGameState(GameState.Daytime)
                 break
             case "Night":
-                setDone(false)
                 setGameState(GameState.Nighttime)
                 break
 
@@ -101,6 +102,17 @@ export default function Game() {
         if (socket.recieved.data && socket.recieved.data[0] !== "") {
             setPlayers(socket.recieved.data)
         }
+    }
+
+    function handleStartingGame() {
+        setStartingGame(true)
+    }
+
+    function handleStartingGameClose() {
+        setGameStarted(true)
+        setTimeout(() => {
+            setStartingGame(false)
+        }, 200)
     }
 
     function handleNewRole() {
@@ -142,7 +154,7 @@ export default function Game() {
     }
 
     return (
-        <article className='p-5 gap-10 h-full w-full justify-between'>
+        <article className='h-full w-full'>
             {amDead ?
                 <DeathScreen />
                 :
@@ -154,7 +166,12 @@ export default function Game() {
                         />
                     }
 
-                    {role &&
+                    {startingGame &&
+                        <NewRole
+                            onClose={handleStartingGameClose}
+                        />
+                    }
+                    {(gameStarted && role) &&
                         <>
                             {gameState === GameState.Daytime &&
                                 <Daytime
@@ -175,44 +192,47 @@ export default function Game() {
                 </RoleContext.Provider>
             }
 
-            {!amHost ?
-                <Button
-                    color="blue"
-                    onClick={() => socket.send({ commandServer: CommandServer.Host })}
-                >
-                    Become Host
-                </Button>
-                :
-                <article className='gap-2'>
-                    { // gameState === GameState.Lobby &&
-                        <Button
-                            color="green"
-                            onClick={() => socket.send({
-                                commandServer: CommandServer.Start,
-                                subCommand: "Custom;Werewolf;Mystic Seer"//FOR DEV ONLY
-                            })}
-                        >
-                            Start Game
-                        </Button>
-                    }
-                    {gameState === GameState.Daytime &&
-                        <Button
-                            color="green"
-                            onClick={() => socket.send({ commandServer: CommandServer.StartNight })}
-                        >
-                            Start Night
-                        </Button>
-                    }
-                    {gameState === GameState.Nighttime &&
-                        <Button
-                            color="green"
-                            onClick={() => socket.send({ commandServer: CommandServer.StartDay })}
-                        >
-                            Start Day
-                        </Button>
-                    }
-                </article>
-            }
+            <article className='absolute bottom-0'>
+
+                {!amHost ?
+                    <Button
+                        color="blue"
+                        onClick={() => socket.send({ commandServer: CommandServer.Host })}
+                    >
+                        Become Host
+                    </Button>
+                    :
+                    <article className='gap-2'>
+                        { // gameState === GameState.Lobby &&
+                            <Button
+                                color="green"
+                                onClick={() => socket.send({
+                                    commandServer: CommandServer.Start,
+                                    subCommand: "Custom;Villager;Werewolf;Tanner;Cult Leader"//FOR DEV ONLY
+                                })}
+                            >
+                                Start Game
+                            </Button>
+                        }
+                        {gameState === GameState.Daytime &&
+                            <Button
+                                color="green"
+                                onClick={() => socket.send({ commandServer: CommandServer.StartNight })}
+                            >
+                                Start Night
+                            </Button>
+                        }
+                        {gameState === GameState.Nighttime &&
+                            <Button
+                                color="green"
+                                onClick={() => socket.send({ commandServer: CommandServer.StartDay })}
+                            >
+                                Start Day
+                            </Button>
+                        }
+                    </article>
+                }
+            </article>
         </article>
     );
 }

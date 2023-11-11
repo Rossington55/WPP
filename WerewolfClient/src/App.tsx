@@ -1,9 +1,9 @@
 import Login from './login'
 import Game from './Game/Game'
-import { createContext, useEffect, useState } from 'react'
+import { createContext, useState } from 'react'
 
 export enum CommandServer { None, Join, Leave, GetPlayers, Host, Start, RemindState, StartNight, WerewolfSelectPlayer, NightSubmit, SelectVote, SubmitVote, StartDay }
-export enum CommandClient { None, Connected, Joined, Left, HostFound, PlayerList, Role, SelectedPlayerList, Submitted, Murdered, State, EndGame, Alert }
+export enum CommandClient { None, Connected, Joined, Left, HostFound, PlayerList, Role, SelectedPlayerList, Submitted, Murdered, State, EndGame, Alert, StartingGame }
 
 interface Socket {
   recieved: SocketMessage,

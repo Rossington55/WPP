@@ -1,0 +1,5 @@
+#loginImg {
+    -webkit-mask-image: url(../assets/images/loginBackgroundMask.png);
+    mask-image: url(../assets/images/loginBackgroundMask.png);
+    mask-mode: luminance;
+}

@@ -4,10 +4,10 @@
       
  */
 
-import React, { useContext, useEffect, useState } from 'react';
-import MyRole from './MyRole';
+import { useContext, useEffect, useState } from 'react';
 import { CommandClient, CommandServer, SocketContext } from '../App';
-import { Button, Chip, List, ListItem, ListItemSuffix } from '@material-tailwind/react';
+import { Badge, Button, Chip, List, ListItem, ListItemSuffix } from '@material-tailwind/react';
+import background from "../assets/images/daytime.png"
 
 interface Props {
     players: Array<string>,
@@ -112,37 +112,53 @@ export default function Daytime(props: Props) {
 
     return (
         <article>
-            It is Daytime
-            <MyRole />
+            <img
+                src={background}
+                className='max-w-none self-center opacity-80'
+                width={1000}
+            />
+            <article className='absolute p-5 justify-around h-full'>
+                <h1 className='text-center font-custom1'>Who is the werewolf?</h1>
 
+                <article className='grid grid-cols-2 gap-5'>
+                    {players.map((player, i) => (
 
-            <List>
-                {players.map((player, i) => (
-                    <ListItem
-                        key={i}
-                        selected={player.selectedByMe}
-                        onClick={() => handleSelect(i)}
-                    >
-                        {player.name}
-                        <ListItemSuffix>
+                        <article
+                            key={i}
+                            className={`ghostFadeIn rounded-md h-[50px] items-center justify-center w-full
+                                ${player.selectedByMe ? "bg-red-700" : "bg-white"}
+                                `}
+                            onClick={() => handleSelect(i)}
+                        >
+                            <h3 className={` font-bold font-custom2
+                            ${player.selectedByMe ? "text-red-400" : "text-black"}
+                            `}
+                            >
+                                {player.name}
+                            </h3>
                             {player.selectedCount > 0 &&
-                                <Chip
-                                    value={player.selectedCount}
-                                />
+                                <article
+                                    className='fixed top-0 right-0 translate-x-[50%] translate-y-[-50%] 
+                                rounded-[50%] border w-[30px] h-[30px] bg-red 
+                                text-center justify-center'
+                                >
+                                    {player.selectedCount}
+                                </article>
                             }
-                        </ListItemSuffix>
-                    </ListItem>
-                ))}
-            </List>
-            {/* Submit */}
-
-            <Button
-                color="blue"
-                disabled={submitted}
-                onClick={() => submitVote()}
-            >
-                Lock Vote
-            </Button>
+                        </article>
+                    ))}
+                </article>
+                {/* Submit */}
+                <Button
+                    color="red"
+                    className={`font-custom2 text-xl ${submitted && "ghostFadeOut"}`}
+                    variant='outlined'
+                    disabled={submitted || !players.find(player => player.selectedByMe)}
+                    onClick={() => submitVote()}
+                >
+                    Lock Vote
+                </Button>
+            </article>
         </article>
     );
 }

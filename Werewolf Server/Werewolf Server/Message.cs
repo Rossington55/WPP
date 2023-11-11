@@ -32,7 +32,8 @@ namespace Werewolf_Server
         Murdered,           //9
         State,              //10
         EndGame,            //11
-        Alert               //12 - Used by spellcaster/old hag
+        Alert,              //12 - Used by spellcaster/old hag
+        StartingGame,       //13
     }
 
 

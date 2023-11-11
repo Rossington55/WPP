@@ -16,8 +16,7 @@
  */
 
 import SelectField from './SelectField';
-import FileInput from './FileInput'
-import { Checkbox, Input, Textarea, input } from '@material-tailwind/react';
+import { Checkbox, Input, Textarea } from '@material-tailwind/react';
 import ButtonField from './ButtonFields';
 import moment from 'moment'
 
@@ -105,8 +104,6 @@ export default function BasicField(props: any) {
         //         />
         //     }
         ///>
-        case "file":
-            return <FileInput {...inputProps} />
         case "buttons":
             return <ButtonField {...inputProps} />
         case "textarea":
@@ -125,7 +122,8 @@ export default function BasicField(props: any) {
     return (
         <Input
             {...inputProps}
-            color="blue"
+            color='white'
+            size='lg'
             error={props.errMsg ? props.errMsg.includes(props.label) : false}
             variant={props.variant ?? "outlined"}
             labelProps={inputProps}

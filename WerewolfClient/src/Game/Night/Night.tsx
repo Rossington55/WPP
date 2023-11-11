@@ -4,11 +4,11 @@
       
  */
 
-import React, { useContext, useState, useEffect } from 'react';
-import { Role, RoleContext, Team } from '../Game';
+import { useContext, useState, useEffect } from 'react';
+import { RoleContext, Team } from '../Game';
 import { Button, Chip, List, ListItem, ListItemSuffix } from '@material-tailwind/react';
 import { CommandClient, CommandServer, SocketContext } from '../../App';
-import { ALL_ROLE_BUTTONS, RoleButton, RoleButtons } from '../../generics/Config';
+import { ALL_ROLE_BUTTONS, RoleButton } from '../../generics/Config';
 
 interface Props {
     players: Array<string>,
@@ -169,7 +169,7 @@ export default function Night(props: Props) {
         }
     }
 
-    function checkReadyDisabled(button: RoleButton) {
+    function checkReadyDisabled(button: RoleButton): boolean {
 
         //Werewolf validation
         if (role?.team == Team.Werewolf) {
@@ -191,8 +191,8 @@ export default function Night(props: Props) {
         }
 
         if (role?.name === "Witch") {
-            if (button.returnString === "Health") { return sessionStorage.getItem("Used Health") }
-            if (button.returnString === "Poison") { return sessionStorage.getItem("Used Poison") }
+            if (button.returnString === "Health") { return sessionStorage.getItem("Used Health") !== "" }
+            if (button.returnString === "Poison") { return sessionStorage.getItem("Used Poison") !== "" }
         }
 
         return players.findIndex(player => player.selectedByMe) == -1
