@@ -2,7 +2,7 @@ import Login from './login'
 import Game from './Game/Game'
 import { createContext, useState } from 'react'
 
-export enum CommandServer { None, Join, Leave, GetPlayers, Host, Start, RemindState, StartNight, WerewolfSelectPlayer, NightSubmit, SelectVote, SubmitVote, StartDay }
+export enum CommandServer { None, Join, Leave, GetPlayers, Host, Start, RemindState, StartNight, WerewolfSelectPlayer, NightSubmit, SelectVote, SubmitVote, StartDay, Close }
 export enum CommandClient { None, Connected, Joined, Left, HostFound, PlayerList, Role, SelectedPlayerList, Submitted, Murdered, State, EndGame, Alert, StartingGame }
 
 interface Socket {
@@ -34,6 +34,7 @@ function App() {
   const [socketMsg, setSocketMsg] = useState<SocketMessage>(emptyMessage)
   const [joined, setJoined] = useState<boolean>(false)
 
+  console.log("v2")
   return (
     <SocketContext.Provider value={{
       recieved: socketMsg,
@@ -46,7 +47,14 @@ function App() {
       rejoin: async () => {
         //Rejoin and redefine socket
         console.log("rejoining")
-        socketObj = await new WebSocket("ws://localhost:8080/ws")
+
+
+        // socketObj = await new WebSocket(`wss://werewolf-server.azurewebsites.net/ws`)
+        // socketObj = await new WebSocket(`ws://192.168.0.${serverIP}:443/ws`)
+        // socketObj = await new WebSocket(`ws://192.168.0.${serverIP}:80/ws`)
+
+        socketObj = await new WebSocket(`ws://localhost:80/ws`)
+
 
         socketObj.onopen = () => {
           console.info("Socket open")

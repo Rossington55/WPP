@@ -6,8 +6,10 @@
 
 import { useContext, useEffect, useState } from 'react';
 import { CommandClient, CommandServer, SocketContext } from '../App';
-import { Badge, Button, Chip, List, ListItem, ListItemSuffix } from '@material-tailwind/react';
+import { Button, } from '@material-tailwind/react';
 import background from "../assets/images/daytime.png"
+import JigglyText from '../generics/JigglyText';
+import Fog from '../generics/Fog';
 
 interface Props {
     players: Array<string>,
@@ -46,6 +48,9 @@ export default function Daytime(props: Props) {
         }
         setPlayers(newPlayers)
     }, [props.players])
+    useEffect(() => {
+        setSubmitted(false)
+    }, [])
 
     function populateSelectedPlayers() {
         let newPlayers = [...players]
@@ -88,7 +93,6 @@ export default function Daytime(props: Props) {
         const player = newPlayers[i]
 
         newPlayers[i].selectedByMe = true
-        console.log(newPlayers[i])
         socket.send({
             commandServer: CommandServer.SelectVote,
             player: myName,
@@ -111,16 +115,22 @@ export default function Daytime(props: Props) {
     }
 
     return (
-        <article>
+        <article className='overflow-hidden'>
             <img
                 src={background}
                 className='max-w-none self-center opacity-80'
                 width={1000}
             />
-            <article className='absolute p-5 justify-around h-full'>
-                <h1 className='text-center font-custom1'>Who is the werewolf?</h1>
+            <div className={`absolute`}>
+                <Fog />
+            </div>
+            <article className='absolute p-5 justify-around h-full items-center w-full'>
+                {/* TITLE */}
+                <h1 className='text-center font-custom1 text-5xl'>
+                    <JigglyText text="WHO IS A WEREWOLF?" />
+                </h1>
 
-                <article className='grid grid-cols-2 gap-5'>
+                <article className='grid grid-cols-2 gap-5 w-full'>
                     {players.map((player, i) => (
 
                         <article
@@ -151,7 +161,7 @@ export default function Daytime(props: Props) {
                 {/* Submit */}
                 <Button
                     color="red"
-                    className={`font-custom2 text-xl ${submitted && "ghostFadeOut"}`}
+                    className={`font-custom2 text-xl ${submitted && "ghostFadeOut"} w-full`}
                     variant='outlined'
                     disabled={submitted || !players.find(player => player.selectedByMe)}
                     onClick={() => submitVote()}

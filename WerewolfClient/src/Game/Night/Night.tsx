@@ -8,7 +8,12 @@ import { useContext, useState, useEffect } from 'react';
 import { RoleContext, Team } from '../Game';
 import { Button, Chip, List, ListItem, ListItemSuffix } from '@material-tailwind/react';
 import { CommandClient, CommandServer, SocketContext } from '../../App';
-import { ALL_ROLE_BUTTONS, RoleButton } from '../../generics/Config';
+import { ALL_ROLE_MEDIA, RoleButton } from '../../generics/Config';
+import BGcottage from '../../assets/images/VillagerNight.png'
+import BGdoorstep from '../../assets/images/Doorstep.jpg'
+import JigglyText from '../../generics/JigglyText';
+import { color } from '@material-tailwind/react/types/components/alert';
+
 
 interface Props {
     players: Array<string>,
@@ -30,6 +35,7 @@ export default function Night(props: Props) {
     const myName = sessionStorage.getItem("name") ?? ""
     const socket = useContext(SocketContext)
     const role = useContext(RoleContext)
+    const [background ,setBackground] = useState<string>("")
 
     const lastSelectedPlayers: Array<string> = JSON.parse(sessionStorage.getItem("lastSelectedPlayers") || "[]")
 
@@ -45,7 +51,7 @@ export default function Night(props: Props) {
     }, [socket.recieved])
 
     useEffect(() => {
-        let newPlayers: Array<Player> = []
+        const newPlayers: Array<Player> = []
         for (let name of props.players) {
             newPlayers.push({
                 name: name,
@@ -62,7 +68,7 @@ export default function Night(props: Props) {
     }, [])
 
     function handleSelect(i: number) {
-        let newPlayers = [...players]
+        const newPlayers = [...players]
 
 
         //Multiclick
@@ -114,7 +120,7 @@ export default function Night(props: Props) {
     }
 
     function handleOtherWerewolfSelect() {
-        let newPlayers = [...players]
+        const newPlayers = [...players]
         if (!socket.recieved.data) { return }
         for (let player of socket.recieved.data) {
             const playerData = player.split(';')
@@ -129,7 +135,7 @@ export default function Night(props: Props) {
 
     function handleSubmit(buttonClicked: RoleButton) {
         //Create list of selected player names
-        let selectedPlayerNames: Array<string> = []
+        const selectedPlayerNames: Array<string> = []
         const selectedPlayers = players.filter(player => player.selectedByMe)
         selectedPlayers.map(player => {
             selectedPlayerNames.push(player.name)
@@ -162,10 +168,22 @@ export default function Night(props: Props) {
     function getMyRoleButtons() {
         if (!role) { return }
 
-        for (let roleButtons of ALL_ROLE_BUTTONS) {
-            if (roleButtons.name.includes(role.name)) {
-                setMyRoleButtons(roleButtons.buttons)
+        for (let roleMedia of ALL_ROLE_MEDIA) {
+            if (!roleMedia.name.includes(role.name)) {
+                continue
             }
+
+            setMyRoleButtons(roleMedia.buttons)
+            switch(roleMedia.nightImage){
+                case "Cottage":
+                    setBackground(BGcottage)
+                    break
+                case "Doorstep":
+                    setBackground(BGdoorstep)
+                    break
+            }
+
+            break
         }
     }
 
@@ -173,7 +191,7 @@ export default function Night(props: Props) {
 
         //Werewolf validation
         if (role?.team == Team.Werewolf) {
-            let selectedPlayers = players.filter(player => player.selectedCount > 0)
+            const selectedPlayers = players.filter(player => player.selectedCount > 0)
 
             //Cant select multiple people
             if (selectedPlayers.length > 1) {
@@ -198,30 +216,55 @@ export default function Night(props: Props) {
         return players.findIndex(player => player.selectedByMe) == -1
     }
 
+    function getButtonColor(): color {
+        switch(role?.team){
+            case Team.Villager:
+                return "blue"
+            case Team.Werewolf:
+                return "red"
+            case Team.Cult:
+                return "green"
+            case Team.Tanner:
+                return "brown"
+            default:
+                return 'gray'
+        }
+    }
+
     return (
-        <article>
-            <h1>NIGHT TIME</h1>
+        <article className='overflow-hidden'>
+            <img
+                src={background}
+                className='max-w-none self-center opacity-50'
+                width={1000}
+            />
+
+            <article className='absolute items-center w-full h-full justify-center'>
+
 
 
             {!submitted ?
-                <article>
+                <article className='gap-5'>
 
-                    <h2>{role?.nightDescription}</h2>
+                <h1 className='text-center font-custom1 text-5xl'>
+<JigglyText text={role?.nightDescription ?? ""}/>
+                </h1>
 
                     {role?.hasNightTask && !role.noNightSelection &&
                         <List>
                             {players.map((player, i) => (
                                 <ListItem
-                                    key={i}
-                                    selected={player.selectedByMe}
-                                    onClick={() => handleSelect(i)}
-                                    disabled={!role.canSelectLast && lastSelectedPlayers.includes(player.name)}
+                                key={i}
+                                selected={player.selectedByMe}
+                                onClick={() => handleSelect(i)}
+                                disabled={!role.canSelectLast && lastSelectedPlayers.includes(player.name)}
+                                className='font-custom2'
                                 >
                                     {player.name}
                                     <ListItemSuffix>
                                         {player.selectedCount > 0 &&
                                             <Chip
-                                                value={player.selectedCount}
+                                            value={player.selectedCount}
                                             />
                                         }
                                     </ListItemSuffix>
@@ -234,11 +277,11 @@ export default function Night(props: Props) {
                         <article className='gap-2'>
                             {myRoleButtons.map((button, i) => (
                                 <Button
-                                    key={i}
-                                    disabled={checkReadyDisabled(button)}
-                                    color='blue'
-                                    className={button.className}
-                                    onClick={() => handleSubmit(button)}
+                                key={i}
+                                disabled={checkReadyDisabled(button)}
+                                color={getButtonColor()}
+                                className={button.className + " font-custom2" }
+                                onClick={() => handleSubmit(button)}
                                 >
                                     {button.label}
                                 </Button>
@@ -248,19 +291,22 @@ export default function Night(props: Props) {
                 </article>
                 :
                 <article>
-                    Done for the night
+                    <h2>
+                    <JigglyText text='Done for the night'/>
+                    </h2>
 
                     {nightInfo.length > 0 &&
                         <article className='gap-5'>
                             {/* Result */}
                             {nightInfo.map((info, i) => (
                                 <h2 key={i}>{info}</h2>
-                            ))}
+                                ))}
                         </article>
                     }
                 </article>
             }
         </article>
+            </article>
     );
 }
 

@@ -3,6 +3,7 @@ import BasicField from './generics/fields/BasicField'
 import { Button } from '@material-tailwind/react'
 import { CommandClient, CommandServer, SocketContext } from './App'
 import EntranceBackground from './Game/EntranceBackground'
+import JigglyText from './generics/JigglyText'
 
 interface Props {
     onJoin: () => void
@@ -37,6 +38,10 @@ export default function Login(props: Props) {
                     props.onJoin()
                 }, 2000)
                 return
+            case CommandClient.None:
+                setLoading(false)
+                setJoined(false)
+                break
         }
 
     },
@@ -53,6 +58,12 @@ export default function Login(props: Props) {
             setTimeout(() => {
                 socket.rejoin()
             }, 100);
+            //Timeout after 3 seconds
+            setTimeout(() => {
+                if (!joined) {
+                    setLoading(false)
+                }
+            }, 3000)
         }
     }, [])
 
@@ -64,6 +75,13 @@ export default function Login(props: Props) {
 
         setLoading(true)
         socket.rejoin()
+
+        //Timeout after 3 seconds
+        setTimeout(() => {
+            if (!joined) {
+                setLoading(false)
+            }
+        }, 3000)
     }
 
     return (
@@ -73,32 +91,22 @@ export default function Login(props: Props) {
             <article className='z-2 absolute justify-around h-full w-full p-5'>
                 <article className={joined ? "ghostFadeOut" : ""}>
                     <h2 className='self-center text-red-600 text-4xl font-custom1 floatText2'>Feldman Homebrew</h2>
-                    <h1 className='self-center text-red text-8xl font-custom1'>
-                        <section>
-                            <div className='floatText1'>W</div>
-                            <div className='floatText2'>E</div>
-                            <div className='floatText1'>R</div>
-                            <div className='floatText2'>E</div>
-                            <div className='floatText2'>W</div>
-                            <div className='floatText1'>O</div>
-                            <div className='floatText2'>L</div>
-                            <div className='floatText1'>F</div>
-                        </section>
+                    <h1 className='self-center text-red text-8xl'>
+                        <JigglyText text="WEREWOLF" />
                     </h1>
                 </article>
-                <article className='gap-5 p-5'>
+                <article className={`gap-5 p-5 ${loading || joined ? "ghostFadeOut" : "ghostFadeIn"}`}>
                     <BasicField
                         object={name}
                         setStateFunc={setName}
                         errMsg={errMsg}
                         label="Your Name"
                         maxLength={12}
-                        className={(loading || joined) && "ghostFadeOut"}
                     />
 
                     <Button
                         color="red"
-                        className={`font-custom2 text-xl ${(loading || joined) && "ghostFadeOut"}`}
+                        className={`font-custom2 text-xl`}
                         onClick={handleLogin}
                         disabled={loading}
                     >

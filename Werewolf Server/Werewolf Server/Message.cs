@@ -17,6 +17,7 @@ namespace Werewolf_Server
         SelectVote,             //10 Choosse someone to vote but not locked in
         SubmitVote,             //11 Lock in a vote
         StartDay,             //11 Lock in a vote
+        Close,                  //13 Close the game
     }
     public enum CommandClient
     {

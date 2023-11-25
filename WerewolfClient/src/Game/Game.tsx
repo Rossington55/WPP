@@ -39,6 +39,7 @@ export default function Game() {
     const [amHost, setAmHost] = useState<boolean>(false)
     const [winner, setWinner] = useState<string>("")
     const [amDead, setDead] = useState<boolean>(false)
+    const [deathMessage, setDeathMessage] = useState<string>("")
     const socket = useContext(SocketContext)
 
     useEffect(() => {
@@ -70,6 +71,7 @@ export default function Game() {
                 break
             case CommandClient.Murdered:
                 setDead(true)
+                setDeathMessage(socket.recieved.subCommand ?? "")
                 break
             case CommandClient.Alert:
                 handleAlert()
@@ -83,6 +85,9 @@ export default function Game() {
     }, [socket.recieved])
 
     function updateState() {
+        if (!gameStarted) {
+            setGameStarted(true)
+        }
         switch (socket.recieved.subCommand) {
             case "Lobby":
                 sessionStorage.removeItem("lastSelectedPlayers")
@@ -156,7 +161,7 @@ export default function Game() {
     return (
         <article className='h-full w-full'>
             {amDead ?
-                <DeathScreen />
+                <DeathScreen deathMessage={deathMessage} />
                 :
                 <RoleContext.Provider value={role}>
 
@@ -208,7 +213,7 @@ export default function Game() {
                                 color="green"
                                 onClick={() => socket.send({
                                     commandServer: CommandServer.Start,
-                                    subCommand: "Custom;Villager;Werewolf;Tanner;Cult Leader"//FOR DEV ONLY
+                                    subCommand: "Custom;Villager;Villager;Werewolf"//FOR DEV ONLY
                                 })}
                             >
                                 Start Game
@@ -230,6 +235,13 @@ export default function Game() {
                                 Start Day
                             </Button>
                         }
+
+                        <Button
+                            color="red"
+                            onClick={() => socket.send({ commandServer: CommandServer.Close })}
+                        >
+                            Close Game
+                        </Button>
                     </article>
                 }
             </article>

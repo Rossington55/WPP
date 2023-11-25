@@ -7,7 +7,7 @@ using System.Reflection.Metadata.Ecma335;
 using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.WebHost.UseUrls("http://localhost:8080/");
+builder.WebHost.UseUrls("http://localhost:80/");
 var app = builder.Build();
 
 app.UseWebSockets();

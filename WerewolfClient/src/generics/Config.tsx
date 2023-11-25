@@ -6,20 +6,27 @@ export interface RoleButton {
     requiredSelections?: number
 }
 
-export interface RoleButtons {
+export interface RoleNightMedia {
     name: Array<string>,
-    buttons: Array<RoleButton>
+    buttons: Array<RoleButton>,
+    nightImage?: string,
 }
 
 
-export const ALL_ROLE_BUTTONS: Array<RoleButtons> = [
+export const ALL_ROLE_MEDIA: Array<RoleNightMedia> = [
+    {
+        name: ["Villager"],
+        buttons: [],
+        nightImage: "Cottage"
+    },
     {
         name: ["Werewolf"],
         buttons: [
             {
                 label: "Bite",
             }
-        ]
+        ],
+        nightImage: "Doorstep"
     },
     {
         name: ["Seer", "Apprentice Seer", "Aura Seer", "Sorceress", "Mystic Seer"],

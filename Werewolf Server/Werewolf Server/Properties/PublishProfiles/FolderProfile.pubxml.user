@@ -5,7 +5,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
 <Project>
   <PropertyGroup>
     <_PublishTargetUrl>C:\WIP\Werewolf Server\serverDeploy</_PublishTargetUrl>
-    <History>True|2023-11-10T02:01:54.1650495Z;</History>
+    <History>True|2023-11-12T10:40:32.3145536Z;True|2023-11-12T20:50:11.4100464+11:00;True|2023-11-12T20:45:52.2063085+11:00;True|2023-11-12T20:45:11.3097978+11:00;True|2023-11-12T20:12:00.3687160+11:00;True|2023-11-12T20:06:22.8708049+11:00;True|2023-11-12T20:01:26.6895299+11:00;False|2023-11-12T20:01:19.3177773+11:00;True|2023-11-12T19:44:40.9109134+11:00;True|2023-11-12T19:26:07.6483237+11:00;False|2023-11-12T19:25:54.3352797+11:00;True|2023-11-12T18:38:09.5819251+11:00;False|2023-11-12T18:37:54.2724999+11:00;</History>
     <LastFailureDetails />
   </PropertyGroup>
 </Project>

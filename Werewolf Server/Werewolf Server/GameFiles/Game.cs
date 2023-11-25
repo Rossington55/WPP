@@ -59,6 +59,7 @@ namespace Werewolf_Server
             gameModes.GetMode(users.Count, gameMode);
 
             List<Role> roles = GenerateRoles(users.Count);
+            if(roles.Count > users.Count) { return _messagesOut; }
 
             //Add a player with each role
             for (int i = 0; i < roles.Count; i++)
@@ -366,7 +367,7 @@ namespace Werewolf_Server
                 //Check if player is due to die anyway
                 if (player.deathTimer == 0)
                 {
-                    MurderPlayer(player);
+                    MurderPlayer(player,"You died under suspicious circumstances");
                 }
             }
 
@@ -418,24 +419,27 @@ namespace Werewolf_Server
                     }
                 }
 
-                MurderPlayer(player);
+                MurderPlayer(player,"You've been murdered by Werewolves");
             }
         }
-        private void MurderPlayer(Player murderedPlayer)
+        private void MurderPlayer(Player murderedPlayer, String murderMethod)
         {
             //Dont kill invincible players
             if (murderedPlayer.invincible) { return; }
 
 
             murderedPlayer.alive = false;
-            if (state == State.Night)
+            Message murderMessage = new Message(murderedPlayer.name, CommandClient.Murdered);
+            murderMessage.subCommand = murderMethod;
+            if (state == State.Night)//Wait til end of night
             {
-                _pendingMessages.Add(new Message(murderedPlayer.name, CommandClient.Murdered));
+                _pendingMessages.Add(murderMessage);
             }
-            else
+            else//End right away
             {
-                _messagesOut.Add(new Message(murderedPlayer.name, CommandClient.Murdered));
+                _messagesOut.Add(murderMessage);
             }
+
 
             //Activate the apprentice Seer
             if (murderedPlayer.role.name == "Seer")
@@ -448,6 +452,7 @@ namespace Werewolf_Server
                     if (state == State.Night)
                     {
                         _pendingMessages.Add(new Message(apprentice.name, CommandClient.Role, apprentice.RoleDetails));
+
                     }
                     else
                     {
@@ -477,7 +482,8 @@ namespace Werewolf_Server
             //Kill any linked players
             if (murderedPlayer.linkedPlayer != null && murderedPlayer.linkedPlayer.alive)
             {
-                MurderPlayer(murderedPlayer.linkedPlayer);
+                MurderPlayer(murderedPlayer.linkedPlayer, murderMethod);
+
             }
 
         }
@@ -493,6 +499,13 @@ namespace Werewolf_Server
             if (selectedPlayer == null) { return voteList; }
             if (!me.canVote) { return voteList; }
 
+            //Find last selected and remove vote when changed
+            Player? lastSelected = _players.Find(player => player.votedBy.Contains(message.player));
+            if (lastSelected != null && lastSelected.name != selectedPlayer.name)
+            {
+                lastSelected.votedBy.Remove(message.player);
+                lastSelected.votes--;
+            }
             //Select/Deselect
             if (message.subCommand == "select")
             {
@@ -617,7 +630,7 @@ namespace Werewolf_Server
                 //Tanner check
                 if (highestVotedPlayer.role.name == "Tanner") { tannerVoted = true; }
 
-                MurderPlayer(highestVotedPlayer);
+                MurderPlayer(highestVotedPlayer,"You've been hung");
             }
 
         }

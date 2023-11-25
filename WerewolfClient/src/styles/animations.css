@@ -1,9 +1,9 @@
 .floatText1 {
-    animation: floatText1 20s linear infinite;
+    animation: floatText1 10s linear infinite;
 }
 
 .floatText2 {
-    animation: floatText1 15s linear infinite;
+    animation: floatText1 13s linear infinite;
 }
 
 .ghostFadeOut {

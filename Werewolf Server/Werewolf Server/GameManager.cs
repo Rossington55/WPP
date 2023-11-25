@@ -42,6 +42,10 @@ namespace Werewolf_Server
                     result = _game.Start(_connections, message.subCommand);
                     ResolveGameResult(result);
                     break;
+                case CommandServer.Close:
+                    _game = null;
+                    _connections.Clear();
+                    break;
 
                 //Anything else should be apart of the game
                 default:
@@ -94,7 +98,8 @@ namespace Werewolf_Server
             int existingPlayerId = _connections.FindIndex(Connection => Connection.connectionName == name);
             Connection conn;
 
-            if (existingPlayerId != -1)
+
+            if (existingPlayerId != -1)//Existing Player
             {
                 //Player already exists, update socket
                 //Kick out the old socket
@@ -105,8 +110,19 @@ namespace Werewolf_Server
                 _connections[existingPlayerId].socket = ws;
                 conn = _connections[existingPlayerId];
             }
-            else
+            else//New player
             {
+                //Dont allow in if game's already started
+                if (_game != null && _game.state != State.Lobby)
+                {
+                    conn = new Connection(name, ws);
+                    conn.Broadcast(new Message(
+                        name,
+                            CommandClient.None,
+                            ""
+                        ));
+                    return;
+                }
                 //Add new player
                 _connections.Add(new Connection(name, ws));
                 conn = _connections.Last();
@@ -185,7 +201,7 @@ namespace Werewolf_Server
             if (existingUserId == -1) { return; }
             Connection user = _connections[existingUserId];
 
-            if (_game != null)//If game is started
+            if (_game != null && _game.state != State.Lobby)//If game is started
             {
                 List<Message> result = _game.GetReminderData(user.player);
                 foreach (Message message in result)
